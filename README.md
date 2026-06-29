@@ -23,4 +23,4 @@ Em desenvolvimento
 
 ## Licença
 
-Projeto desenvolvido para fins acadêmicos na disciplina de Projeto Integrador do Instituto Federal do Rio Grande do Norte (IFRN).
+Projeto desenvolvido para fins acadêmicos na disciplina de Projeto Integrador do Instituto Federal de Educação, Ciência e Tecnologia do Rio Grande do Norte (IFRN) – Campus Santa Cruz.
