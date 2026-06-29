@@ -1,6 +1,9 @@
 # Plataforma Exatos
 A Plataforma Exatos é uma aplicação web desenvolvida para auxiliar estudantes na preparação para o ENEM e para o Exame de Seleção do IFRN. O sistema reúne videoaulas, materiais complementares e quizzes interativos em um único ambiente, proporcionando um aprendizado gratuito, organizado e acessível.
 
+## Objetivo
+Desenvolver uma plataforma web gratuita para auxiliar estudantes na preparação para o ENEM e para o Exame de Seleção do IFRN, oferecendo videoaulas, materiais complementares e quizzes interativos.
+
 ## Tecnologias
 - HTML
 - CSS
