@@ -1,14 +1,14 @@
 # Plataforma-Exatos
 Plataforma educacional para preparação de estudantes para o ENEM e o IFRN.
 
-## Tecnologias
+### Tecnologias
 - HTML
 - CSS
 - JavaScript
 - Node.js
 - Express.js
 
-# Equipe
+## Equipe
 - Alefh Kalléo de Medeiros da Silva
 - Fernando Gomes da Silva
 - Grazielly Teixeira Rodrigues
