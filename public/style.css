@@ -1,0 +1,211 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    display: flex;
+    background-color: #f3f7fa;
+    min-height: 100vh;
+}
+
+/* BARRA LATERAL */
+.sidebar {
+    width: 240px;
+    background-color: #0b7cc7;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    padding: 0 20px 30px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo-icon {
+    font-size: 28px;
+    margin-right: 10px;
+}
+
+.logo-text small {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+.logo-text strong {
+    font-size: 20px;
+}
+
+/* MENU LATERAL ATUALIZADO E ADAPTADO */
+.menu {
+    margin-top: 25px;
+    flex-grow: 1;
+    padding: 0 15px; /* Afasta os botões das bordas da barra lateral */
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Cria um espaçamento elegante entre um botão e outro */
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 10px; /* Garante os cantos arredondados modernos */
+    transition: all 0.2s ease;
+    gap: 12px; /* Espaço entre o ícone/emoji e o texto */
+}
+
+/* Efeito sutil ao passar o mouse */
+.menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* Estilo do botão quando estiver selecionado e ativo */
+.menu-item.active {
+    background-color: #08619d; /* Fundo azul escuro de destaque */
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Sombra leve para dar profundidade */
+}
+
+.sidebar-footer {
+    width: 80%;
+    height: 80px;
+    background-color: rgba(255, 255, 255, 0.15);
+    margin: 0 auto;
+    border-radius: 8px;
+}
+
+/* ÁREA DE CONTEÚDO INDIVIDUAL */
+.content {
+    flex-grow: 1;
+    padding: 40px;
+}
+
+.main-title {
+    color: #0a4670;
+    font-size: 28px;
+    margin-bottom: 30px;
+}
+
+/* CARDS EM GRID (2 COLUNAS) */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+.card {
+    background-color: white;
+    border-radius: 16px;
+    padding: 25px;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+.badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #e1f0fe;
+    color: #0b7cc7;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+.card-title {
+    color: #0a4670;
+    font-size: 18px;
+    margin-bottom: 8px;
+    margin-top: 10px;
+}
+
+.card-desc {
+    color: #7b8c99;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+/* BOTÕES INTERNOS DOS CARDS */
+.card-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+}
+
+.btn-primary {
+    background-color: #538cb4;
+    color: white;
+    flex-grow: 1;
+}
+
+.btn-primary:hover {
+    background-color: #427294;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+    flex-grow: 1;
+}
+
+.btn-secondary:hover {
+    background-color: #f8fafc;
+}
+
+.btn-arrow {
+    background-color: transparent;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+    padding: 10px 15px;
+}
+
+.btn-arrow:hover {
+    background-color: #f8fafc;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.logo-img {
+    width: 170px;
+    height: 60px;
+}
+

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma Exatos</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+</head>
+<body>
+
+    <!-- BARRA LATERAL AZUL -->
+    <aside class="sidebar">
+        <div class="logo-area">
+            <img src="/imgs/LOGO.png" alt="Plataforma Exatos" class="logo-img">
+        </div>
+        </div>
+        
+        <nav class="menu">
+            <a href="/" id="btn-inicio" class="menu-item">
+                <span class="material-symbols-outlined">view_cozy</span>
+                Início
+            </a>
+        
+            <a href="/videoaulas" id="btn-videoaulas" class="menu-item">
+                <span class="material-symbols-outlined">play_arrow</span>
+                Videoaulas
+            </a>
+        </nav>
+        
+        
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL (DIREITA) -->
+    <main class="content">
+        <h1 class="main-title" id="page-title">Aulas de Matemática</h1>
+        
+        <!-- GRADE DE CARDS (Preenchida dinamicamente) -->
+        <div class="cards-grid" id="cards-container">
+            <!-- Os cards aparecem aqui -->
+        </div>
+    </main>
+
+    <script>
+        const pathAtual = window.location.pathname;
+        const btnInicio = document.getElementById('btn-inicio');
+        const btnVideoaulas = document.getElementById('btn-videoaulas');
+        const pageTitle = document.getElementById('page-title');
+        const container = document.getElementById('cards-container');
+
+        // FUNÇÃO QUE ASSISTE A AULA (Salva os dados e muda de página)
+        function assistirAula(titulo, descricao, link, nivel) {
+            const aulaSelecionada = { titulo, descricao, link, nivel };
+            localStorage.setItem('aulaAssistindo', JSON.stringify(aulaSelecionada));
+            window.location.href = '/videoaulas';
+        }
+
+        // LÓGICA DE RENDERIZAÇÃO POR PÁGINA
+        if (pathAtual === '/videoaulas') {
+            btnVideoaulas.classList.add('active');
+            pageTitle.innerText = "Videoaula Selecionada";
+
+            // Recupera o card que foi clicado na página inicial
+            const dadosArmazenados = localStorage.getItem('aulaAssistindo');
+
+            if (dadosArmazenados) {
+                const aula = JSON.parse(dadosArmazenados);
+                // Renderiza APENAS o card selecionado
+                container.innerHTML = `
+                    <div class="card" style="grid-column: span 2;">
+                        <span class="badge">${aula.nivel}</span>
+                        <h3 class="card-title">${aula.titulo}</h3>
+                        <p class="card-desc">${aula.descricao}</p>
+                        
+                        <div class="card-actions">
+                            <a href="${aula.link}" target="_blank" class="btn btn-primary" style="text-decoration: none; justify-content: center;">
+                            <span class="material-symbols-outlined">play_arrow</span> 
+                            Assistir no YouTube
+                            </a>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `<p style="color: #7b8c99;">Nenhuma aula foi selecionada ainda. Vá para a página inicial.</p>`;
+            }
+
+        } else {
+            btnInicio.classList.add('active');
+            pageTitle.innerText = "Função do 1º Grau";
+            carregarTodasAsAulas();
+        }
+
+        // BUSCA TODAS AS AULAS DO BACK-END (Usado apenas na página inicial)
+        async function carregarTodasAsAulas() {
+            try {
+                const resposta = await fetch('/api/aulas');
+                const aulas = await response.json(); // Se der erro de digitação use await resposta.json()
+                
+                container.innerHTML = '';
+
+                aulas.forEach(aula => {
+                    // Criamos o HTML passando os dados da aula para a função de clique
+                    const cardHtml = `
+                        <div class="card">
+                            <span class="badge">${aula.nivel}</span>
+                            <h3 class="card-title">${aula.titulo}</h3>
+                            <p class="card-desc">${aula.descricao}</p>
+                            
+                            <div class="card-actions">
+                                <button class="btn btn-primary" onclick="assistirAula('${aula.titulo}', '${aula.descricao}', '${aula.link}', '${aula.nivel}')">
+                                    <span class="material-symbols-outlined">play_arrow</span>
+Aula
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += cardHtml;
+                });
+            } catch (erro) {
+                // Caso a resposta acima tenha falhado pelo nome da variável
+                const resposta = await fetch('/api/aulas');
+                const aulas = await resposta.json();
+                container.innerHTML = '';
+                aulas.forEach(aula => {
+                    const cardHtml = `
+                        <div class="card">
+                            <span class="badge">${aula.nivel}</span>
+                            <h3 class="card-title">${aula.titulo}</h3>
+                            <p class="card-desc">${aula.descricao}</p>
+                            <div class="card-actions">
+                                <button class="btn btn-primary" onclick="assistirAula('${aula.titulo.replace(/'/g, "&apos;")}', '${aula.descricao.replace(/'/g, "&apos;")}', '${aula.link}', '${aula.nivel}')">
+                                    <span class="material-symbols-outlined">play_arrow</span>
+Aula
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += cardHtml;
+                });
+            }
+        }
+    </script>
+</body>
+</html>
