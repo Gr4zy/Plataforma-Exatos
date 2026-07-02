@@ -11,7 +11,6 @@ body {
     min-height: 100vh;
 }
 
-/* BARRA LATERAL */
 .sidebar {
     width: 240px;
     background-color: #0b7cc7;
@@ -44,14 +43,13 @@ body {
     font-size: 20px;
 }
 
-/* MENU LATERAL ATUALIZADO E ADAPTADO */
 .menu {
     margin-top: 25px;
     flex-grow: 1;
-    padding: 0 15px; /* Afasta os botões das bordas da barra lateral */
+    padding: 0 15px; 
     display: flex;
     flex-direction: column;
-    gap: 8px; /* Cria um espaçamento elegante entre um botão e outro */
+    gap: 8px;
 }
 
 .menu-item {
@@ -62,23 +60,21 @@ body {
     text-decoration: none;
     font-weight: 500;
     font-size: 14px;
-    border-radius: 10px; /* Garante os cantos arredondados modernos */
+    border-radius: 10px;
     transition: all 0.2s ease;
-    gap: 12px; /* Espaço entre o ícone/emoji e o texto */
+    gap: 12px; 
 }
 
-/* Efeito sutil ao passar o mouse */
 .menu-item:hover {
     background-color: rgba(255, 255, 255, 0.1);
     color: white;
 }
 
-/* Estilo do botão quando estiver selecionado e ativo */
 .menu-item.active {
-    background-color: #08619d; /* Fundo azul escuro de destaque */
+    background-color: #08619d;
     color: white;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Sombra leve para dar profundidade */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
 }
 
 .sidebar-footer {
@@ -89,7 +85,6 @@ body {
     border-radius: 8px;
 }
 
-/* ÁREA DE CONTEÚDO INDIVIDUAL */
 .content {
     flex-grow: 1;
     padding: 40px;
@@ -101,7 +96,6 @@ body {
     margin-bottom: 30px;
 }
 
-/* CARDS EM GRID (2 COLUNAS) */
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -142,7 +136,6 @@ body {
     margin-bottom: 25px;
 }
 
-/* BOTÕES INTERNOS DOS CARDS */
 .card-actions {
     display: flex;
     gap: 12px;

@@ -9,7 +9,6 @@
 </head>
 <body>
 
-    <!-- BARRA LATERAL AZUL -->
     <aside class="sidebar">
         <div class="logo-area">
             <img src="/imgs/LOGO.png" alt="Plataforma Exatos" class="logo-img">
@@ -31,14 +30,10 @@
         
     </aside>
 
-    <!-- CONTEÚDO PRINCIPAL (DIREITA) -->
     <main class="content">
-        <h1 class="main-title" id="page-title">Aulas de Matemática</h1>
-        
-        <!-- GRADE DE CARDS (Preenchida dinamicamente) -->
-        <div class="cards-grid" id="cards-container">
-            <!-- Os cards aparecem aqui -->
-        </div>
+        <h1 class="main-title" id="page-title">Aulas de Matemática</h1>       
+            <div class="cards-grid" id="cards-container">
+            </div>
     </main>
 
     <script>
@@ -48,24 +43,20 @@
         const pageTitle = document.getElementById('page-title');
         const container = document.getElementById('cards-container');
 
-        // FUNÇÃO QUE ASSISTE A AULA (Salva os dados e muda de página)
         function assistirAula(titulo, descricao, link, nivel) {
             const aulaSelecionada = { titulo, descricao, link, nivel };
             localStorage.setItem('aulaAssistindo', JSON.stringify(aulaSelecionada));
             window.location.href = '/videoaulas';
         }
 
-        // LÓGICA DE RENDERIZAÇÃO POR PÁGINA
         if (pathAtual === '/videoaulas') {
             btnVideoaulas.classList.add('active');
             pageTitle.innerText = "Videoaula Selecionada";
 
-            // Recupera o card que foi clicado na página inicial
             const dadosArmazenados = localStorage.getItem('aulaAssistindo');
 
             if (dadosArmazenados) {
                 const aula = JSON.parse(dadosArmazenados);
-                // Renderiza APENAS o card selecionado
                 container.innerHTML = `
                     <div class="card" style="grid-column: span 2;">
                         <span class="badge">${aula.nivel}</span>
@@ -90,16 +81,14 @@
             carregarTodasAsAulas();
         }
 
-        // BUSCA TODAS AS AULAS DO BACK-END (Usado apenas na página inicial)
         async function carregarTodasAsAulas() {
             try {
                 const resposta = await fetch('/api/aulas');
-                const aulas = await response.json(); // Se der erro de digitação use await resposta.json()
+                const aulas = await response.json();
                 
                 container.innerHTML = '';
 
                 aulas.forEach(aula => {
-                    // Criamos o HTML passando os dados da aula para a função de clique
                     const cardHtml = `
                         <div class="card">
                             <span class="badge">${aula.nivel}</span>
@@ -117,7 +106,6 @@ Aula
                     container.innerHTML += cardHtml;
                 });
             } catch (erro) {
-                // Caso a resposta acima tenha falhado pelo nome da variável
                 const resposta = await fetch('/api/aulas');
                 const aulas = await resposta.json();
                 container.innerHTML = '';

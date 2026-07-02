@@ -5,7 +5,6 @@ const port = 3000
 
 app.use(express.static(path.join(__dirname, 'public')))
 
-// Lista dinâmica de conteúdos de matemática com links reais do YouTube
 const listaDeAulas = [
     {
         titulo: "Função do 1º Grau (Introdução)",
@@ -33,17 +32,14 @@ const listaDeAulas = [
     }
 ]
 
-// Rota Principal (Início)
 app.get("/", (request, response) => {
     response.sendFile(path.join(__dirname, "index.html"))
 })
 
-// Rota de Videoaulas (Faz o link da barra lateral funcionar)
 app.get("/videoaulas", (request, response) => {
     response.sendFile(path.join(__dirname, "index.html"))
 })
 
-// API que fornece os dados dos cards para o HTML
 app.get("/api/aulas", (request, response) => {
     response.json(listaDeAulas)
 })
