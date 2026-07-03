@@ -14,7 +14,7 @@ const listaDeAulas = [
     },
     {
         titulo: "Equação do 2º Grau e Bhaskara",
-        descricao: "Domine a fórmula de Bhaskara e aprenda a encontrar as raízes de uma equação quadrática.",
+        descricao: "Domine a fórmula de Bhaskara e aprenda a encontrar as raíces de uma equação quadrática.",
         link: "https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ",
         nivel: "Intermediário"
     },
@@ -45,6 +45,5 @@ app.get("/api/aulas", (request, response) => {
 })
 
 app.listen(port, () => {
-    console.log(`Serv local rodando na porta: ${port}`)
+    console.log(`Servidor local rodando na porta: ${port}`)
 })
-

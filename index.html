@@ -4,44 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plataforma Exatos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 </head>
 <body>
 
-    <aside class="sidebar">
-        <div class="logo-area">
-            <img src="/imgs/LOGO.png" alt="Plataforma Exatos" class="logo-img">
-        </div>
-        </div>
-        
-        <nav class="menu">
-            <a href="/" id="btn-inicio" class="menu-item">
-                <span class="material-symbols-outlined">view_cozy</span>
-                Início
+    <nav class="navbar navbar-dark bg-custom-sidebar d-lg-none sticky-top shadow-sm px-3">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/imgs/LOGO.png" alt="Plataforma Exatos" class="logo-img-mobile">
             </a>
-        
-            <a href="/videoaulas" id="btn-videoaulas" class="menu-item">
-                <span class="material-symbols-outlined">play_arrow</span>
-                Videoaulas
-            </a>
-        </nav>
-        
-        
-    </aside>
-
-    <main class="content">
-        <h1 class="main-title" id="page-title">Aulas de Matemática</h1>       
-            <div class="cards-grid" id="cards-container">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#menuMobile" aria-controls="menuMobile" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="material-symbols-outlined text-white fs-1">menu</span>
+            </button>
+            
+            <div class="collapse navbar-collapse mt-3" id="menuMobile">
+                <div class="nav flex-column gap-2 pb-2">
+                    <a href="/" id="btn-inicio-mobile" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2 fs-5">
+                        <span class="material-symbols-outlined">view_cozy</span>
+                        Início
+                    </a>
+                    <a href="/videoaulas" id="btn-videoaulas-mobile" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2 fs-5">
+                        <span class="material-symbols-outlined">play_arrow</span>
+                        Videoaulas
+                    </a>
+                </div>
             </div>
-    </main>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <aside class="col-lg-2 bg-custom-sidebar text-white min-vh-100 p-3 d-none d-lg-block position-sticky top-0 h-100">
+                <div class="logo-area text-center py-3 mb-4">
+                    <img src="/imgs/LOGO.png" alt="Plataforma Exatos" class="logo-img img-fluid">
+                </div>
+                
+                <nav class="nav flex-column gap-2">
+                    <a href="/" id="btn-inicio" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
+                        <span class="material-symbols-outlined">view_cozy</span>
+                        Início
+                    </a>
+                    <a href="/videoaulas" id="btn-videoaulas" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
+                        <span class="material-symbols-outlined">play_arrow</span>
+                        Videoaulas
+                    </a>
+                </nav>
+            </aside>
+
+            <main class="col-10 col-md-12 col-lg-10 p-4 p-md-5 mx-auto">
+                <h1 class="main-title mb-4" id="page-title">Aulas de Matemática</h1>       
+                
+                <div class="row row-cols-1 row-cols-md-2 g-4" id="cards-container">
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         const pathAtual = window.location.pathname;
         const btnInicio = document.getElementById('btn-inicio');
         const btnVideoaulas = document.getElementById('btn-videoaulas');
+        const btnInicioMobile = document.getElementById('btn-inicio-mobile');
+        const btnVideoaulasMobile = document.getElementById('btn-videoaulas-mobile');
         const pageTitle = document.getElementById('page-title');
         const container = document.getElementById('cards-container');
+
+        function obterLinkIncorporado(url) {
+            let videoId = '';
+            if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1].split(/[?#]/)[0];
+            } else if (url.includes('youtube.com/watch')) {
+                const urlParams = new URLSearchParams(new URL(url).search);
+                videoId = urlParams.get('v');
+            } else if (url.includes('youtube.com/embed/')) {
+                videoId = url.split('embed/')[1].split(/[?#]/)[0];
+            }
+            return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1` : url;
+        }
 
         function assistirAula(titulo, descricao, link, nivel) {
             const aulaSelecionada = { titulo, descricao, link, nivel };
@@ -51,81 +94,94 @@
 
         if (pathAtual === '/videoaulas') {
             btnVideoaulas.classList.add('active');
+            btnVideoaulasMobile.classList.add('active');
             pageTitle.innerText = "Videoaula Selecionada";
 
             const dadosArmazenados = localStorage.getItem('aulaAssistindo');
 
             if (dadosArmazenados) {
                 const aula = JSON.parse(dadosArmazenados);
+                const linkEmbed = obterLinkIncorporado(aula.link);
+
                 container.innerHTML = `
-                    <div class="card" style="grid-column: span 2;">
-                        <span class="badge">${aula.nivel}</span>
-                        <h3 class="card-title">${aula.titulo}</h3>
-                        <p class="card-desc">${aula.descricao}</p>
-                        
-                        <div class="card-actions">
-                            <a href="${aula.link}" target="_blank" class="btn btn-primary" style="text-decoration: none; justify-content: center;">
-                            <span class="material-symbols-outlined">play_arrow</span> 
-                            Assistir no YouTube
-                            </a>
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0 rounded-4 p-4 position-relative">
+                            <span class="badge custom-badge position-absolute top-0 end-0 m-3">${aula.nivel}</span>
+                            <h3 class="card-title mt-3">${aula.titulo}</h3>
+                            <p class="text-secondary card-desc mb-4">${aula.descricao}</p>
+                            
+                            <div class="video-container rounded-3 overflow-hidden shadow-sm mb-4">
+                                <iframe 
+                                    src="${linkEmbed}" 
+                                    title="${aula.titulo}" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+
+                            <div class="d-flex flex-column flex-md-row gap-2">
+                                <a href="/" class="btn btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2">
+                                    <span class="material-symbols-outlined">arrow_back</span> 
+                                    Voltar para as aulas
+                                </a>
+                                <a href="${aula.link}" target="_blank" class="btn btn-outline-custom flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2">
+                                    <span class="material-symbols-outlined">open_in_new</span> 
+                                    Assistir no YouTube
+                                </a>
+                            </div>
                         </div>
                     </div>
                 `;
             } else {
-                container.innerHTML = `<p style="color: #7b8c99;">Nenhuma aula foi selecionada ainda. Vá para a página inicial.</p>`;
+                container.innerHTML = '<p class="text-muted">Nenhuma aula foi selecionada ainda. Vá para a página inicial.</p>';
             }
 
         } else {
             btnInicio.classList.add('active');
-            pageTitle.innerText = "Função do 1º Grau";
+            btnInicioMobile.classList.add('active');
+            pageTitle.innerText = "Todas as Aulas";
             carregarTodasAsAulas();
         }
 
         async function carregarTodasAsAulas() {
             try {
                 const resposta = await fetch('/api/aulas');
-                const aulas = await response.json();
-                
-                container.innerHTML = '';
-
-                aulas.forEach(aula => {
-                    const cardHtml = `
-                        <div class="card">
-                            <span class="badge">${aula.nivel}</span>
-                            <h3 class="card-title">${aula.titulo}</h3>
-                            <p class="card-desc">${aula.descricao}</p>
-                            
-                            <div class="card-actions">
-                                <button class="btn btn-primary" onclick="assistirAula('${aula.titulo}', '${aula.descricao}', '${aula.link}', '${aula.nivel}')">
-                                    <span class="material-symbols-outlined">play_arrow</span>
-Aula
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    container.innerHTML += cardHtml;
-                });
+                const aulas = await resposta.json();
+                renderizarAulas(aulas);
             } catch (erro) {
                 const resposta = await fetch('/api/aulas');
                 const aulas = await resposta.json();
-                container.innerHTML = '';
-                aulas.forEach(aula => {
-                    const cardHtml = `
-                        <div class="card">
-                            <span class="badge">${aula.nivel}</span>
-                            <h3 class="card-title">${aula.titulo}</h3>
-                            <p class="card-desc">${aula.descricao}</p>
-                            <div class="card-actions">
-                                <button class="btn btn-primary" onclick="assistirAula('${aula.titulo.replace(/'/g, "&apos;")}', '${aula.descricao.replace(/'/g, "&apos;")}', '${aula.link}', '${aula.nivel}')">
+                renderizarAulas(aulas);
+            }
+        }
+
+        function renderizarAulas(aulas) {
+            container.innerHTML = '';
+            aulas.forEach(aula => {
+                const tituloEscapado = aula.titulo.replace(/'/g, "&apos;");
+                const descricaoEscapada = aula.descricao.replace(/'/g, "&apos;");
+
+                const cardHtml = `
+                    <div class="col">
+                        <div class="card h-100 shadow-sm border-0 rounded-4 p-4 position-relative d-flex flex-column justify-content-between">
+                            <div>
+                                <span class="badge custom-badge position-absolute top-0 end-0 m-3">${aula.nivel}</span>
+                                <h3 class="card-title mt-3 fs-4">${aula.titulo}</h3>
+                                <p class="text-secondary card-desc small">${aula.descricao}</p>
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2" 
+                                    onclick="assistirAula('${tituloEscapado}', '${descricaoEscapada}', '${aula.link}', '${aula.nivel}')">
                                     <span class="material-symbols-outlined">play_arrow</span>
-Aula
+                                    Aula
                                 </button>
                             </div>
                         </div>
-                    `;
-                    container.innerHTML += cardHtml;
-                });
-            }
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
         }
     </script>
 </body>
