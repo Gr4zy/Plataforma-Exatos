@@ -1,0 +1,26 @@
+{
+  "name": "plataforma-exatos",
+  "version": "1.0.0",
+  "description": "A Plataforma Exatos é uma aplicação web desenvolvida para auxiliar estudantes na preparação para o ENEM e para o Exame de Seleção do IFRN. O sistema reúne videoaulas, materiais complementares e quizzes interativos em um único ambiente, proporcionando um aprendizado gratuito, organizado e acessível.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --watch ./bin/www"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gr4zy/Plataforma-Exatos.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Gr4zy/Plataforma-Exatos/issues"
+  },
+  "homepage": "https://github.com/Gr4zy/Plataforma-Exatos#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "mysql2": "^3.22.6",
+    "sequelize": "^6.37.8"
+  }
+}

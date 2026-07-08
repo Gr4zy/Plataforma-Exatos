@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Plataforma Exatos</title>
+
+    <link rel="stylesheet" href="/login.css">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="left">
+
+        <img src="/imgs/LOGO.png" class="logo">
+
+        <h1>
+            Crie sua conta<br>
+            e comece a estudar<br>
+            com a Plataforma Exatos
+        </h1>
+
+        <p>
+            Cadastre-se gratuitamente e tenha acesso às videoaulas,
+            materiais didáticos, quizzes e muito mais.
+        </p>
+
+    </div>
+
+    <div class="right">
+
+        <div class="login-box">
+
+            <h2>Criar Conta</h2>
+
+            <span>Preencha os dados abaixo</span>
+
+            <form action="/cadastro" method="POST">
+
+                <label>Nome</label>
+
+                <div class="input-box">
+                    <i class="fa-regular fa-user"></i>
+                    <input type="text" name="nome" required>
+                </div>
+
+                <label>E-mail</label>
+
+                <div class="input-box">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" name="email" required>
+                </div>
+
+                <label>Senha</label>
+
+                <div class="input-box">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="senha" name="senha" required>
+                    <i class="fa-regular fa-eye" id="mostrarSenha"></i>
+                </div>
+
+                <button type="submit">
+                    Cadastrar
+                </button>
+
+                <p style="text-align:center; margin-top:20px;">
+                    Já possui uma conta?
+                    <a href="/login">Entrar</a>
+                </p>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const botao = document.getElementById("mostrarSenha");
+const senha = document.getElementById("senha");
+
+botao.addEventListener("click", () => {
+
+    if (senha.type === "password") {
+        senha.type = "text";
+        botao.classList.remove("fa-eye");
+        botao.classList.add("fa-eye-slash");
+    } else {
+        senha.type = "password";
+        botao.classList.remove("fa-eye-slash");
+        botao.classList.add("fa-eye");
+    }
+
+});
+</script>
+
+</body>
+</html>
