@@ -1,3 +1,5 @@
+const sequelize = require("./config/database");
+const Usuario = require ("./models/usuario")
 const express = require("express")
 const path = require("path")
 const app = express()
@@ -44,6 +46,95 @@ app.get("/api/aulas", (request, response) => {
     response.json(listaDeAulas)
 })
 
+sequelize.sync()
+.then(() => {
+
+    console.log("Banco sincronizado.");
+
+})
+.catch((erro)=>{
+
+    console.log(erro);
+
+});
+
+app.get("/criar-usuario", async (req,res)=>{
+
+    await Usuario.create({
+
+        nome:"Grazielly",
+
+        email:"grazielly@gmail.com",
+
+        senha:"123"
+
+    });
+
+    res.send("Usuário criado!");
+
+});
+
+app.get("/cadastro", (req, res) => {
+    res.sendFile(path.join(__dirname, "cadastro.html"));
+});
+
 app.listen(port, () => {
     console.log(`Servidor local rodando na porta: ${port}`)
 })
+
+app.get("/login", (req, res) => {
+    res.sendFile(__dirname + "/login.html");
+}); 
+
+app.use(express.urlencoded({ extended: true }));
+
+app.post("/login", async (req,res)=>{
+
+    const { email, senha } = req.body;
+
+    const usuario = await Usuario.findOne({
+
+        where:{
+
+            email,
+
+            senha
+
+        }
+
+    });
+
+    if(usuario){
+
+        res.redirect("/");
+
+    }else{
+
+        res.send("E-mail ou senha incorretos.");
+
+    }
+
+});
+
+app.post("/cadastro", async (req, res) => {
+
+    const { nome, email, senha } = req.body;
+
+    try {
+
+        await Usuario.create({
+            nome,
+            email,
+            senha
+        });
+
+        res.redirect("/login");
+
+    } catch (erro) {
+
+        console.error(erro);
+        res.send("Erro ao cadastrar usuário.");
+
+    }
+
+});

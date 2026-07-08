@@ -29,6 +29,7 @@
                         <span class="material-symbols-outlined">play_arrow</span>
                         Videoaulas
                     </a>
+                    
                 </div>
             </div>
         </div>
@@ -68,6 +69,7 @@
         const pathAtual = window.location.pathname;
         const btnInicio = document.getElementById('btn-inicio');
         const btnVideoaulas = document.getElementById('btn-videoaulas');
+        const btnLogin = document.getElementById('btn-login');
         const btnInicioMobile = document.getElementById('btn-inicio-mobile');
         const btnVideoaulasMobile = document.getElementById('btn-videoaulas-mobile');
         const pageTitle = document.getElementById('page-title');
@@ -95,7 +97,7 @@
         if (pathAtual === '/videoaulas') {
             btnVideoaulas.classList.add('active');
             btnVideoaulasMobile.classList.add('active');
-            pageTitle.innerText = "Videoaula Selecionada";
+            pageTitle.innerText = "Videoaula";
 
             const dadosArmazenados = localStorage.getItem('aulaAssistindo');
 
