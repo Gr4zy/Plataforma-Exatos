@@ -1,0 +1,149 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#fff;
+}
+
+.container{
+    display:flex;
+    height:100vh;
+}
+
+.left{
+
+    width:50%;
+    background:#0B4F80;
+    color:white;
+    padding:40px;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.logo{
+    width: 500px;
+    height: auto;
+    margin-bottom: 30px;
+}
+
+.bemvindo{
+
+    font-size:14px;
+    opacity:.8;
+
+}
+
+.left h1{
+
+    margin-top:15px;
+    font-size:48px;
+    line-height:60px;
+
+}
+
+.left p{
+
+    margin-top:40px;
+    width:420px;
+    line-height:28px;
+    opacity:.9;
+
+}
+
+.right{
+
+    width:50%;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+}
+
+.login-box{
+
+    width:420px;
+
+}
+
+.login-box h2{
+
+    color:#0B4F80;
+    font-size:40px;
+
+}
+
+.login-box span{
+
+    color:#777;
+
+}
+
+form{
+
+    margin-top:40px;
+
+}
+
+label{
+
+    display:block;
+    margin:15px 0 8px;
+
+}
+
+.input-box{
+
+    border:1px solid #dcdcdc;
+    border-radius:12px;
+
+    display:flex;
+    align-items:center;
+
+    padding:15px;
+
+    margin-bottom:20px;
+
+}
+
+.input-box input{
+
+    border:none;
+    outline:none;
+    flex:1;
+    margin-left:15px;
+    font-size:16px;
+
+}
+
+.input-box i{
+
+    color:#0B4F80;
+
+}
+
+button{
+
+    width:100%;
+    border:none;
+    border-radius:12px;
+
+    padding:16px;
+
+    color:white;
+    font-size:18px;
+
+    cursor:pointer;
+
+    background:linear-gradient(90deg,#0B4F80,#1685d8);
+
+}
+a{
+    color: #0B4F80;
+}
