@@ -1,12 +1,28 @@
 const sequelize = require("./config/database");
-const Usuario = require ("./models/usuario")
-const express = require("express")
-const path = require("path")
-const app = express()
-const port = 3000
+const Usuario = require("./models/usuario");
+const express = require("express");
+const path = require("path");
+const app = express();
+const port = 3000;
 
-app.use(express.static(path.join(__dirname, 'public')))
+// ==========================================
+// CONFIGURAÇÕES DO EXPRESS E HBS
+// ==========================================
 
+// Configura o motor de templates Handlebars (HBS)
+app.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Servir arquivos estáticos (CSS, imagens, etc.) da pasta public
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Middlewares para capturar dados enviados por formulários (POST)
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// ==========================================
+// DADOS DE EXEMPLO (VIDEOAULAS)
+// ==========================================
 const listaDeAulas = [
     {
         titulo: "Função do 1º Grau (Introdução)",
@@ -32,109 +48,106 @@ const listaDeAulas = [
         link: "https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ",
         nivel: "Básico"
     }
-]
+];
 
+// ==========================================
+// ROTAS GET (RENDERIZAÇÃO DE PÁGINAS HBS)
+// ==========================================
+
+// Página Inicial - renderiza index.hbs
 app.get("/", (request, response) => {
-    response.sendFile(path.join(__dirname, "index.html"))
-})
+    response.render("index");
+});
 
+// Rota antiga de videoaulas que também renderiza o index.hbs
 app.get("/videoaulas", (request, response) => {
-    response.sendFile(path.join(__dirname, "index.html"))
-})
-
-app.get("/api/aulas", (request, response) => {
-    response.json(listaDeAulas)
-})
-
-sequelize.sync()
-.then(() => {
-
-    console.log("Banco sincronizado.");
-
-})
-.catch((erro)=>{
-
-    console.log(erro);
-
+    response.render("index");
 });
 
-app.get("/criar-usuario", async (req,res)=>{
-
-    await Usuario.create({
-
-        nome:"Grazielly",
-
-        email:"grazielly@gmail.com",
-
-        senha:"123"
-
-    });
-
-    res.send("Usuário criado!");
-
-});
-
+// Tela de Cadastro - renderiza cadastro.hbs
 app.get("/cadastro", (req, res) => {
-    res.sendFile(path.join(__dirname, "cadastro.html"));
+    res.render("cadastro");
 });
 
-app.listen(port, () => {
-    console.log(`Servidor local rodando na porta: ${port}`)
-})
-
+// Tela de Login - renderiza login.hbs
 app.get("/login", (req, res) => {
-    res.sendFile(__dirname + "/login.html");
-}); 
+    res.render("login");
+});
 
-app.use(express.urlencoded({ extended: true }));
+// ==========================================
+// ROTAS DE API E CRIAÇÃO MANUAL
+// ==========================================
 
-app.post("/login", async (req,res)=>{
+// Retorna as aulas em formato JSON
+app.get("/api/aulas", (request, response) => {
+    response.json(listaDeAulas);
+});
 
+// Criar usuário estático para teste rápido
+app.get("/criar-usuario", async (req, res) => {
+    try {
+        await Usuario.create({
+            nome: "Grazielly",
+            email: "grazielly@gmail.com",
+            senha: "123"
+        });
+        res.send("Usuário criado!");
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).send("Erro ao criar usuário estático.");
+    }
+});
+
+// ==========================================
+// ROTAS POST (PROCESSAMENTO DOS FORMULÁRIOS)
+// ==========================================
+
+// Processar o Login
+app.post("/login", async (req, res) => {
     const { email, senha } = req.body;
 
     const usuario = await Usuario.findOne({
-
-        where:{
-
+        where: {
             email,
-
             senha
-
         }
-
     });
 
-    if(usuario){
-
+    if (usuario) {
         res.redirect("/");
-
-    }else{
-
+    } else {
         res.send("E-mail ou senha incorretos.");
-
     }
-
 });
 
+// Processar o Cadastro
 app.post("/cadastro", async (req, res) => {
-
     const { nome, email, senha } = req.body;
 
     try {
-
         await Usuario.create({
             nome,
             email,
             senha
         });
-
         res.redirect("/login");
-
     } catch (erro) {
-
         console.error(erro);
         res.send("Erro ao cadastrar usuário.");
-
     }
+});
 
+// ==========================================
+// CONEXÃO COM O BANCO E INICIALIZAÇÃO
+// ==========================================
+sequelize.sync()
+    .then(() => {
+        console.log("Banco sincronizado com sucesso! 🗄️");
+    })
+    .catch((erro) => {
+        console.log("Erro ao sincronizar banco:", erro);
+    });
+
+app.listen(port, () => {
+    console.log(`Servidor local rodando na porta: ${port} 🔥`);
 });
