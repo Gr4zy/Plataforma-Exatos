@@ -88,8 +88,15 @@
             return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1` : url;
         }
 
-        function assistirAula(titulo, descricao, link, nivel) {
-            const aulaSelecionada = { titulo, descricao, link, nivel };
+        function assistirAula(subtitulo, titulo, descricao, link, nivel) {
+            const aulaSelecionada = {
+                subtitulo,
+                titulo,
+                descricao,
+                link,
+                nivel
+            };
+
             localStorage.setItem('aulaAssistindo', JSON.stringify(aulaSelecionada));
             window.location.href = '/videoaulas';
         }
@@ -108,24 +115,32 @@
                 container.innerHTML = `
                     <div class="col-12">
                         <div class="card shadow-sm border-0 rounded-4 p-4 position-relative">
-                            <span class="badge custom-badge position-absolute top-0 end-0 m-3">${aula.nivel}</span>
-                            <h3 class="card-title mt-3">${aula.titulo}</h3>
-                            <p class="text-secondary card-desc mb-4">${aula.descricao}</p>
-                            
-                            <div class="video-container rounded-3 overflow-hidden shadow-sm mb-4">
-                                <iframe 
-                                    src="${linkEmbed}" 
-                                    title="${aula.titulo}" 
-                                    frameborder="0" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                                    allowfullscreen>
-                                </iframe>
-                            </div>
+                           <span class="badge custom-badge position-absolute top-0 end-0 m-3">${aula.nivel}</span>
+
+                                <h3 class="card-title mt-3">${aula.titulo}</h3>
+
+                                <p class="text-secondary card-desc">${aula.descricao}</p>
+
+                                <h2 class="mt-4 mb-3 text-center">${aula.subtitulo}</h2>
+
+                                <div class="video-container rounded-3 overflow-hidden shadow-sm mb-4">
+                                    <iframe 
+                                        src="${linkEmbed}" 
+                                        title="${aula.titulo}" 
+                                        frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                        allowfullscreen>
+                                    </iframe>
+                                </div>
 
                             <div class="d-flex flex-column flex-md-row gap-2">
                                 <a href="/" class="btn btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2">
                                     <span class="material-symbols-outlined">arrow_back</span> 
                                     Voltar para as aulas
+                                </a>
+                                <a href="/quizz" class="btn btn-success flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2">
+                                    <span class="material-symbols-outlined">quiz</span> 
+                                    Fazer Quiz
                                 </a>
                                 <a href="${aula.link}" target="_blank" class="btn btn-outline-custom flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2">
                                     <span class="material-symbols-outlined">open_in_new</span> 
@@ -167,14 +182,20 @@
                 const cardHtml = `
                     <div class="col">
                         <div class="card h-100 shadow-sm border-0 rounded-4 p-4 position-relative d-flex flex-column justify-content-between">
-                            <div>
-                                <span class="badge custom-badge position-absolute top-0 end-0 m-3">${aula.nivel}</span>
-                                <h3 class="card-title mt-3 fs-4">${aula.titulo}</h3>
-                                <p class="text-secondary card-desc small">${aula.descricao}</p>
-                            </div>
+                           <div>
+    <span class="badge custom-badge position-absolute top-0 end-0 m-3">${aula.nivel}</span>
+
+    <h2 class="fs-5 text-primary fw-bold mb-2">${aula.subtitulo}</h2>
+
+    <h3 class="card-title fs-4">${aula.titulo}</h3>
+
+    <p class="text-secondary card-desc small">${aula.descricao}</p>
+</div>
                             <div class="mt-3">
-                                <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2" 
-                                    onclick="assistirAula('${tituloEscapado}', '${descricaoEscapada}', '${aula.link}', '${aula.nivel}')">
+                                <button
+                                    class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2"
+                                    onclick="assistirAula('${aula.subtitulo}', '${tituloEscapado}', '${descricaoEscapada}', '${aula.link}', '${aula.nivel}')">
+
                                     <span class="material-symbols-outlined">play_arrow</span>
                                     Aula
                                 </button>

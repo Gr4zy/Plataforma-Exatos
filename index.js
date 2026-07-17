@@ -25,24 +25,28 @@ app.use(express.json());
 // ==========================================
 const listaDeAulas = [
     {
+        subtitulo: "Álgebra",
         titulo: "Função do 1º Grau (Introdução)",
         descricao: "Aprenda o conceito inicial de função afim, gráfico, coeficiente angular e linear.",
-        link: "https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ", 
+        link: "https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ",
         nivel: "Básico"
     },
     {
+        subtitulo: "Equações",
         titulo: "Equação do 2º Grau e Bhaskara",
-        descricao: "Domine a fórmula de Bhaskara e aprenda a encontrar as raíces de uma equação quadrática.",
+        descricao: "Domine a fórmula de Bhaskara e aprenda a encontrar as raízes de uma equação quadrática.",
         link: "https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ",
         nivel: "Intermediário"
     },
     {
+        subtitulo: "Análise Combinatória",
         titulo: "Análise Combinatória: Fatorial",
         descricao: "Entenda os princípios de contagem, arranjo, combinação e agrupamentos matemáticos.",
         link: "https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ",
         nivel: "Avançado"
     },
     {
+        subtitulo: "Geometria Plana",
         titulo: "Geometria Plana: Áreas de Figuras",
         descricao: "Como calcular a área de quadrados, retângulos, triângulos e círculos sem mistérios.",
         link: "https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ",
@@ -62,6 +66,11 @@ app.get("/", (request, response) => {
 // Rota antiga de videoaulas que também renderiza o index.hbs
 app.get("/videoaulas", (request, response) => {
     response.render("index");
+});
+
+// Tela do Quiz - renderiza quizz.hbs
+app.get("/quizz", (request, response) => {
+    response.render("quizz");
 });
 
 // Tela de Cadastro - renderiza cadastro.hbs
@@ -142,12 +151,12 @@ app.post("/cadastro", async (req, res) => {
 // ==========================================
 sequelize.sync()
     .then(() => {
-        console.log("Banco sincronizado com sucesso! 🗄️");
+        console.log("Banco sincronizado com sucesso! ");
     })
     .catch((erro) => {
         console.log("Erro ao sincronizar banco:", erro);
     });
 
 app.listen(port, () => {
-    console.log(`Servidor local rodando na porta: ${port} 🔥`);
+    console.log(`Servidor local rodando na porta: ${port} `);
 });
