@@ -13,7 +13,7 @@
     <nav class="navbar navbar-dark bg-custom-sidebar d-lg-none sticky-top shadow-sm px-3">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="/">
-                <img src="/images/LOGO.png" alt="Plataforma Exatos" class="logo-img-mobile">
+                <img src="/imgs/LOGO.png" alt="Plataforma Exatos" class="logo-img-mobile">
             </a>
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#menuMobile" aria-controls="menuMobile" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="material-symbols-outlined text-white fs-1">menu</span>
@@ -25,7 +25,7 @@
                         <span class="material-symbols-outlined">view_cozy</span>
                         Início
                     </a>
-                    <a href="/classes" id="btn-videoaulas-mobile" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2 fs-5">
+                    <a href="/videoaulas" id="btn-videoaulas-mobile" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2 fs-5">
                         <span class="material-symbols-outlined">play_arrow</span>
                         Videoaulas
                     </a>
@@ -39,7 +39,7 @@
         <div class="row">
             <aside class="col-lg-2 bg-custom-sidebar text-white min-vh-100 p-3 d-none d-lg-block position-sticky top-0 h-100">
                 <div class="logo-area text-center py-3 mb-4">
-                    <img src="/images/LOGO.png" alt="Plataforma Exatos" class="logo-img img-fluid">
+                    <img src="/imgs/LOGO.png" alt="Plataforma Exatos" class="logo-img img-fluid">
                 </div>
                 
                 <nav class="nav flex-column gap-2">
@@ -47,7 +47,7 @@
                         <span class="material-symbols-outlined">view_cozy</span>
                         Início
                     </a>
-                    <a href="/classes" id="btn-videoaulas" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
+                    <a href="/videoaulas" id="btn-videoaulas" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
                         <span class="material-symbols-outlined">play_arrow</span>
                         Videoaulas
                     </a>
@@ -98,10 +98,10 @@
             };
 
             localStorage.setItem('aulaAssistindo', JSON.stringify(aulaSelecionada));
-            window.location.href = '/classes';
+            window.location.href = '/videoaulas';
         }
 
-        if (pathAtual === '/classes') {
+        if (pathAtual === '/videoaulas') {
             btnVideoaulas.classList.add('active');
             btnVideoaulasMobile.classList.add('active');
             pageTitle.innerText = "Videoaula";
@@ -163,11 +163,11 @@
 
         async function carregarTodasAsAulas() {
             try {
-                const resposta = await fetch('/classes/api/aulas');
+                const resposta = await fetch('/api/aulas');
                 const aulas = await resposta.json();
                 renderizarAulas(aulas);
             } catch (erro) {
-                const resposta = await fetch('/classes/api/aulas');
+                const resposta = await fetch('/api/aulas');
                 const aulas = await resposta.json();
                 renderizarAulas(aulas);
             }
