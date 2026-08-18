@@ -226,3 +226,11 @@ body {
 #cards-container .card {
     width: 100%;
 }
+
+.card-subtitulo {
+    color: #5f73ac;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
