@@ -1,0 +1,321 @@
+<style>
+    /* Estilos específicos da tela de cadastro, seguindo a identidade da plataforma */
+    .form-card {
+        background: #fff;
+    }
+    .form-label {
+        color: #0a4670;
+        font-weight: 600;
+    }
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #538cb4;
+        box-shadow: 0 0 0 0.2rem rgba(83, 140, 180, 0.25);
+    }
+    .dropzone {
+        border: 2px dashed #a9c9dd;
+        border-radius: 12px;
+        background-color: #f3f7fa;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .dropzone:hover,
+    .dropzone.dragover {
+        background-color: #e1f0fe;
+        border-color: #0b7cc7;
+    }
+    .dropzone .material-symbols-outlined {
+        font-size: 2.2rem;
+        color: #0b7cc7;
+    }
+    .aula-row .badge-nivel {
+        font-size: 11px;
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 6px;
+        background-color: #e1f0fe;
+        color: #0b7cc7;
+    }
+    .btn-excluir {
+        color: #b3261e;
+    }
+    .btn-excluir:hover {
+        background-color: #fdeceb;
+    }
+    #alertBox {
+        display: none;
+    }
+</style>
+
+<h1 class="main-title mb-4" id="formTitulo">Cadastrar Aula</h1>
+
+<div id="alertBox" class="alert rounded-3" role="alert"></div>
+
+<div class="card shadow-sm border-0 rounded-4 p-4 p-md-5 form-card mb-5">
+    <form id="formAula" novalidate>
+        <input type="hidden" id="aulaId" name="aulaId" value="">
+        <div class="row g-4">
+            <div class="col-md-8">
+                <label for="titulo" class="form-label">Título da aula *</label>
+                <input type="text" class="form-control" id="titulo" name="titulo" placeholder="Ex: Função do 1º Grau (Introdução)" required>
+            </div>
+
+            <div class="col-md-4">
+                <label for="nivel" class="form-label">Nível *</label>
+                <select class="form-select" id="nivel" name="nivel" required>
+                    <option value="Básico">Básico</option>
+                    <option value="Intermediário">Intermediário</option>
+                    <option value="Avançado">Avançado</option>
+                </select>
+            </div>
+
+            <div class="col-md-8">
+                <label for="subtitulo" class="form-label">Assunto / Subtítulo</label>
+                <input type="text" class="form-control" id="subtitulo" name="subtitulo" placeholder="Ex: Álgebra">
+            </div>
+
+            <div class="col-12">
+                <label for="link" class="form-label">URL da videoaula (YouTube) *</label>
+                <input type="url" class="form-control" id="link" name="link" placeholder="https://youtu.be/..." required>
+            </div>
+
+            <div class="col-12">
+                <label for="descricao" class="form-label">Descrição *</label>
+                <textarea class="form-control" id="descricao" name="descricao" rows="3" placeholder="Resumo do conteúdo abordado na aula" required></textarea>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label">Material escrito (PDF)</label>
+                <p class="small text-muted mb-2" id="materialAtualTexto" style="display:none;"></p>
+                <div class="dropzone p-4 text-center" id="dropzone">
+                    <span class="material-symbols-outlined d-block mb-2">upload_file</span>
+                    <p class="mb-1 fw-semibold text-secondary" id="dropzoneTexto">
+                        Arraste um PDF aqui ou clique para selecionar
+                    </p>
+                    <p class="mb-0 small text-muted">Apenas arquivos .pdf — até 20MB</p>
+                    <input type="file" id="material" name="material" accept="application/pdf" class="d-none">
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex flex-column flex-md-row gap-2 mt-4">
+            <button type="submit" class="btn btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2" id="btnSalvar">
+                <span class="material-symbols-outlined" id="btnSalvarIcone">save</span>
+                <span id="btnSalvarTexto">Salvar aula</span>
+            </button>
+            <button type="button" class="btn btn-outline-custom flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2 d-none" id="btnCancelarEdicao">
+                <span class="material-symbols-outlined">close</span>
+                Cancelar edição
+            </button>
+            <button type="reset" class="btn btn-outline-custom flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2" id="btnLimpar">
+                <span class="material-symbols-outlined">refresh</span>
+                Limpar
+            </button>
+        </div>
+    </form>
+</div>
+
+<h2 class="fs-4 main-title mb-3">Aulas cadastradas</h2>
+<div id="listaAulas" class="d-flex flex-column gap-3"></div>
+
+<script>
+    const form = document.getElementById('formAula');
+    const dropzone = document.getElementById('dropzone');
+    const inputMaterial = document.getElementById('material');
+    const dropzoneTexto = document.getElementById('dropzoneTexto');
+    const alertBox = document.getElementById('alertBox');
+    const listaAulas = document.getElementById('listaAulas');
+    const formTitulo = document.getElementById('formTitulo');
+    const aulaIdInput = document.getElementById('aulaId');
+    const materialAtualTexto = document.getElementById('materialAtualTexto');
+    const btnSalvarTexto = document.getElementById('btnSalvarTexto');
+    const btnCancelarEdicao = document.getElementById('btnCancelarEdicao');
+
+    // --- Dropzone de PDF ---
+    dropzone.addEventListener('click', () => inputMaterial.click());
+
+    inputMaterial.addEventListener('change', () => {
+        atualizarNomeArquivo();
+    });
+
+    ['dragenter', 'dragover'].forEach(evento => {
+        dropzone.addEventListener(evento, (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(evento => {
+        dropzone.addEventListener(evento, (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+        });
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        const arquivo = e.dataTransfer.files[0];
+        if (arquivo) {
+            inputMaterial.files = e.dataTransfer.files;
+            atualizarNomeArquivo();
+        }
+    });
+
+    function atualizarNomeArquivo() {
+        if (inputMaterial.files.length > 0) {
+            dropzoneTexto.textContent = inputMaterial.files[0].name;
+        } else {
+            dropzoneTexto.textContent = 'Arraste um PDF aqui ou clique para selecionar';
+        }
+    }
+
+    function mostrarAlerta(mensagem, tipo) {
+        alertBox.className = `alert rounded-3 alert-${tipo}`;
+        alertBox.textContent = mensagem;
+        alertBox.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => { alertBox.style.display = 'none'; }, 4000);
+    }
+
+    // --- Envio do formulário (cria ou atualiza, dependendo se está editando) ---
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const dadosForm = new FormData(form);
+        const idEmEdicao = aulaIdInput.value;
+        const estaEditando = !!idEmEdicao;
+
+        const url = estaEditando
+            ? `/admin/aulas/api/aulas/${idEmEdicao}`
+            : '/admin/aulas/api/aulas';
+        const metodo = estaEditando ? 'PUT' : 'POST';
+
+        try {
+            const resposta = await fetch(url, {
+                method: metodo,
+                body: dadosForm
+            });
+
+            const resultado = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(resultado.erro || 'Não foi possível salvar a aula.');
+            }
+
+            mostrarAlerta(estaEditando ? 'Aula atualizada com sucesso!' : 'Aula cadastrada com sucesso!', 'success');
+            cancelarEdicao();
+            carregarAulas();
+        } catch (erro) {
+            mostrarAlerta(erro.message, 'danger');
+        }
+    });
+
+    // --- Preenche o formulário com os dados de uma aula para edição ---
+    async function editarAula(id) {
+        try {
+            const resposta = await fetch(`/admin/aulas/api/aulas/${id}`);
+            if (!resposta.ok) throw new Error('Não foi possível carregar a aula.');
+            const aula = await resposta.json();
+
+            aulaIdInput.value = aula.id;
+            document.getElementById('titulo').value = aula.titulo || '';
+            document.getElementById('subtitulo').value = aula.subtitulo || '';
+            document.getElementById('descricao').value = aula.descricao || '';
+            document.getElementById('link').value = aula.link || '';
+            document.getElementById('nivel').value = aula.nivel || 'Básico';
+
+            if (aula.materialUrl) {
+                materialAtualTexto.innerHTML = `Material atual: <a href="${aula.materialUrl}" target="_blank">ver PDF</a> — envie um novo arquivo abaixo apenas se quiser substituí-lo.`;
+                materialAtualTexto.style.display = 'block';
+            } else {
+                materialAtualTexto.style.display = 'none';
+            }
+
+            formTitulo.textContent = 'Editar Aula';
+            btnSalvarTexto.textContent = 'Atualizar aula';
+            btnCancelarEdicao.classList.remove('d-none');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (erro) {
+            mostrarAlerta(erro.message, 'danger');
+        }
+    }
+
+    function cancelarEdicao() {
+        form.reset();
+        aulaIdInput.value = '';
+        materialAtualTexto.style.display = 'none';
+        dropzoneTexto.textContent = 'Arraste um PDF aqui ou clique para selecionar';
+        formTitulo.textContent = 'Cadastrar Aula';
+        btnSalvarTexto.textContent = 'Salvar aula';
+        btnCancelarEdicao.classList.add('d-none');
+    }
+
+    btnCancelarEdicao.addEventListener('click', cancelarEdicao);
+
+    // --- Listagem das aulas já cadastradas ---
+    async function carregarAulas() {
+        try {
+            const resposta = await fetch('/admin/aulas/api/aulas');
+            const aulas = await resposta.json();
+            renderizarLista(aulas);
+        } catch (erro) {
+            listaAulas.innerHTML = '<p class="text-muted">Não foi possível carregar as aulas.</p>';
+        }
+    }
+
+    function renderizarLista(aulas) {
+        if (!aulas.length) {
+            listaAulas.innerHTML = '<p class="text-muted">Nenhuma aula cadastrada ainda.</p>';
+            return;
+        }
+
+        listaAulas.innerHTML = '';
+        aulas.slice().reverse().forEach(aula => {
+            const item = document.createElement('div');
+            item.className = 'card aula-row border-0 shadow-sm rounded-4 p-3';
+            item.innerHTML = `
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                    <div>
+                        <span class="badge-nivel me-2">${aula.nivel}</span>
+                        <strong class="text-secondary">${aula.subtitulo || ''}</strong>
+                        <h3 class="fs-6 mb-1 mt-1" style="color:#0a4670;">${aula.titulo}</h3>
+                        <p class="text-secondary small mb-0">${aula.descricao}</p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="${aula.link}" target="_blank" class="btn btn-sm btn-outline-custom d-flex align-items-center gap-1">
+                            <span class="material-symbols-outlined fs-6">play_arrow</span> Vídeo
+                        </a>
+                        ${aula.materialUrl
+                            ? `<a href="${aula.materialUrl}" target="_blank" class="btn btn-sm btn-outline-custom d-flex align-items-center gap-1">
+                                   <span class="material-symbols-outlined fs-6">picture_as_pdf</span> PDF
+                               </a>`
+                            : ''}
+                        <button class="btn btn-sm btn-outline-custom d-flex align-items-center gap-1" onclick="editarAula(${aula.id})">
+                            <span class="material-symbols-outlined fs-6">edit</span> Editar
+                        </button>
+                        <button class="btn btn-sm btn-excluir d-flex align-items-center gap-1" onclick="excluirAula(${aula.id})">
+                            <span class="material-symbols-outlined fs-6">delete</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            listaAulas.appendChild(item);
+        });
+    }
+
+    async function excluirAula(id) {
+        if (!confirm('Tem certeza que deseja excluir esta aula?')) return;
+
+        try {
+            const resposta = await fetch(`/admin/aulas/api/aulas/${id}`, { method: 'DELETE' });
+            if (!resposta.ok && resposta.status !== 204) {
+                throw new Error('Não foi possível excluir a aula.');
+            }
+            carregarAulas();
+        } catch (erro) {
+            mostrarAlerta(erro.message, 'danger');
+        }
+    }
+
+    carregarAulas();
+</script>
