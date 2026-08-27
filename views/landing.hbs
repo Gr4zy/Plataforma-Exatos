@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Plataforma Exatos — Sua preparação para o ENEM e o IFRN</title>
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
 <style>
     :root{
         --el-navy-900:#04213a;
@@ -17,13 +19,19 @@
         --el-ink:#0a2540;
     }
 
+    *{
+        box-sizing:border-box;
+    }
+
     .el-body{
+        margin:0;
         font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background:#ffffff;
         color:var(--el-ink);
     }
 
-    /* ---------- NAV + HERO wrapper ---------- */
+    /* ---------- HERO ---------- */
+
     .el-hero-wrap{
         position:relative;
         background:
@@ -32,9 +40,11 @@
             linear-gradient(150deg, var(--el-navy-800) 0%, var(--el-navy-900) 55%, #03192c 100%);
         overflow:hidden;
     }
+
     .el-hero-wrap::before{
         content:"";
-        position:absolute; inset:0;
+        position:absolute;
+        inset:0;
         background-image:radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px);
         background-size:22px 22px;
         opacity:.5;
@@ -42,38 +52,34 @@
     }
 
     /* ---------- NAVBAR ---------- */
+
     .el-navbar{
         position:relative;
         z-index:3;
     }
-    .el-brand{
-        display:flex; align-items:center; gap:10px;
-        text-decoration:none;
-    }
-    .el-logo-img{
-        height:34px;
-        width:auto;
-        display:block;
-    }
-    @media (min-width:1500px){
-        .el-logo-img{ height:200px; }
+
+    /*
+       TOPO REORGANIZADO:
+       Os botões ficam acima da logo.
+    */
+
+    .el-navbar .container{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        padding-top:15px;
+        padding-bottom:5px;
     }
 
-    /* ---------- BARRA DE TOPO (rodapé invertido) ---------- */
-    .el-topbar{
-        background:var(--el-navy-900);
-        border-bottom:1px solid rgba(255,255,255,.08);
-    }
-    .el-topbar-inner{
+    /* Área dos botões */
+
+    .el-top-actions{
+        width:100%;
         display:flex;
-        justify-content:center;
+        justify-content:flex-end;
         align-items:center;
-        gap:.6rem;
-        padding:.55rem 1rem;
-        flex-wrap:wrap;
-    }
-    @media (min-width: 768px){
-        .el-topbar-inner{ justify-content:flex-end; }
+        gap:10px;
+        margin-bottom:12px;
     }
 
     .el-btn-entrar{
@@ -85,8 +91,14 @@
         font-size:.92rem;
         transition:.2s;
         background:transparent;
+        text-decoration:none;
     }
-    .el-btn-entrar:hover{ background:rgba(255,255,255,.08); color:#fff; }
+
+    .el-btn-entrar:hover{
+        background:rgba(255,255,255,.08);
+        color:#fff;
+    }
+
     .el-btn-cadastrar{
         background:rgba(255,255,255,.12);
         border:1px solid rgba(255,255,255,.25);
@@ -96,13 +108,42 @@
         font-weight:700;
         font-size:.92rem;
         transition:.2s;
+        text-decoration:none;
     }
-    .el-btn-cadastrar:hover{ background:rgba(255,255,255,.2); color:#fff; }
+
+    .el-btn-cadastrar:hover{
+        background:rgba(255,255,255,.2);
+        color:#fff;
+    }
+
+    /* LOGO */
+
+    .el-brand{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        text-decoration:none;
+    }
+
+    .logo-img-mobile{
+        width:145px;
+        height:auto;
+        max-width:100%;
+        object-fit:contain;
+        display:block;
+    }
 
     /* ---------- HERO CONTENT ---------- */
-    .el-hero{ position:relative; z-index:2; }
+
+    .el-hero{
+        position:relative;
+        z-index:2;
+    }
+
     .el-eyebrow-pill{
-        display:inline-flex; align-items:center; gap:8px;
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
         background:rgba(34,177,234,.14);
         border:1px solid rgba(34,177,234,.4);
         color:#7fd9f7;
@@ -111,24 +152,33 @@
         font-size:.8rem;
         font-weight:600;
     }
+
     .el-eyebrow-pill .dot{
-        width:6px; height:6px; border-radius:50%;
+        width:6px;
+        height:6px;
+        border-radius:50%;
         background:var(--el-cyan);
         display:inline-block;
     }
+
     .el-hero h1{
         font-weight:800;
         font-size:clamp(2.1rem, 4.4vw, 3.3rem);
         color:#fff;
         line-height:1.1;
     }
-    .el-hero h1 .accent{ color:var(--el-cyan); }
+
+    .el-hero h1 .accent{
+        color:var(--el-cyan);
+    }
+
     .el-hero-desc{
         color:var(--el-muted);
         font-size:1.05rem;
         max-width:520px;
         line-height:1.6;
     }
+
     .el-btn-cta{
         background:linear-gradient(135deg, var(--el-cyan), var(--el-blue));
         color:#fff;
@@ -137,11 +187,20 @@
         padding:.85rem 1.6rem;
         font-weight:700;
         font-size:1rem;
-        display:inline-flex; align-items:center; gap:8px;
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
         box-shadow:0 10px 24px rgba(34,177,234,.35);
         transition:transform .2s ease, box-shadow .2s ease;
+        text-decoration:none;
     }
-    .el-btn-cta:hover{ transform:translateY(-2px); box-shadow:0 14px 28px rgba(34,177,234,.45); color:#fff; }
+
+    .el-btn-cta:hover{
+        transform:translateY(-2px);
+        box-shadow:0 14px 28px rgba(34,177,234,.45);
+        color:#fff;
+    }
+
     .el-btn-ghost{
         background:transparent;
         color:#fff;
@@ -151,42 +210,47 @@
         font-weight:700;
         font-size:1rem;
         transition:.2s;
+        text-decoration:none;
     }
-    .el-btn-ghost:hover{ background:rgba(255,255,255,.08); color:#fff; }
 
-    .el-avatars{
-        display:flex; align-items:center; gap:.75rem;
+    .el-btn-ghost:hover{
+        background:rgba(255,255,255,.08);
+        color:#fff;
     }
-    .el-avatars .stack{ display:flex; }
-    .el-avatar{
-        width:34px; height:34px;
-        border-radius:50%;
-        border:2px solid var(--el-navy-900);
-        margin-left:-10px;
-        display:flex; align-items:center; justify-content:center;
-        color:#fff; font-weight:700; font-size:.75rem;
-    }
-    .el-avatar:first-child{ margin-left:0; }
-    .el-avatars small{ color:var(--el-muted); }
-    .el-avatars small strong{ color:#fff; }
 
-    /* ---------- FLOATING APP CARD ---------- */
-    .el-app-card-holder{ position:relative; z-index:2; }
+    /* ---------- APP CARD ---------- */
+
+    .el-app-card-holder{
+        position:relative;
+        z-index:2;
+    }
+
     .el-app-card{
         background:#fff;
         border-radius:20px;
         box-shadow:0 30px 60px rgba(0,0,0,.35);
         overflow:hidden;
     }
+
     .el-app-card-topbar{
         background:#eef3f7;
         padding:.6rem .9rem;
-        display:flex; gap:6px;
+        display:flex;
+        gap:6px;
     }
+
     .el-app-card-topbar span{
-        width:9px; height:9px; border-radius:50%; background:#c7d2da; display:inline-block;
+        width:9px;
+        height:9px;
+        border-radius:50%;
+        background:#c7d2da;
+        display:inline-block;
     }
-    .el-app-card-body{ padding:1.25rem; }
+
+    .el-app-card-body{
+        padding:1.25rem;
+    }
+
     .el-stat-row{
         display:flex;
         background:#f3f7fa;
@@ -194,104 +258,207 @@
         padding:1rem;
         margin-bottom:1rem;
     }
-    .el-stat-row > div{ flex:1; text-align:center; }
-    .el-stat-row .num{
-        font-weight:800; font-size:1.15rem; color:var(--el-navy-700);
-        display:flex; align-items:center; justify-content:center; gap:4px;
+
+    .el-stat-row > div{
+        flex:1;
+        text-align:center;
     }
-    .el-stat-row .lbl{ font-size:.72rem; color:#7a8ba0; font-weight:600; }
+
+    .el-stat-row .num{
+        font-weight:800;
+        font-size:1.15rem;
+        color:var(--el-navy-700);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:4px;
+    }
+
+    .el-stat-row .lbl{
+        font-size:.72rem;
+        color:#7a8ba0;
+        font-weight:600;
+    }
 
     .el-lesson-row{
-        display:flex; align-items:center; gap:.85rem;
+        display:flex;
+        align-items:center;
+        gap:.85rem;
         padding:.7rem 0;
         border-top:1px solid #eef1f4;
     }
-    .el-lesson-row:first-of-type{ border-top:none; }
+
+    .el-lesson-row:first-of-type{
+        border-top:none;
+    }
+
     .el-lesson-icon{
-        width:38px; height:38px; border-radius:10px;
-        display:flex; align-items:center; justify-content:center;
-        background:#e1f0fe; color:var(--el-blue);
+        width:38px;
+        height:38px;
+        border-radius:10px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        background:#e1f0fe;
+        color:var(--el-blue);
         flex-shrink:0;
     }
-    .el-lesson-title{ font-weight:700; font-size:.92rem; color:var(--el-ink); margin-bottom:2px; }
-    .el-lesson-badge{
-        font-size:.68rem; font-weight:700;
-        color:#7a8ba0; background:#f0f3f6;
-        border-radius:6px; padding:.15rem .5rem;
+
+    .el-lesson-title{
+        font-weight:700;
+        font-size:.92rem;
+        color:var(--el-ink);
+        margin-bottom:2px;
     }
+
+    .el-lesson-badge{
+        font-size:.68rem;
+        font-weight:700;
+        color:#7a8ba0;
+        background:#f0f3f6;
+        border-radius:6px;
+        padding:.15rem .5rem;
+    }
+
     .el-lesson-check{
         margin-left:auto;
-        font-size:.78rem; font-weight:700;
-        color:#1aa15c; background:#e5f7ec;
-        border-radius:999px; padding:.25rem .6rem;
+        font-size:.78rem;
+        font-weight:700;
+        color:#1aa15c;
+        background:#e5f7ec;
+        border-radius:999px;
+        padding:.25rem .6rem;
         white-space:nowrap;
     }
+
     .el-lesson-play{
         margin-left:auto;
-        width:34px; height:34px; border-radius:50%;
-        background:var(--el-navy-700); color:#fff;
-        display:flex; align-items:center; justify-content:center;
+        width:34px;
+        height:34px;
+        border-radius:50%;
+        background:var(--el-navy-700);
+        color:#fff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
         flex-shrink:0;
     }
 
     /* ---------- STATS BAR ---------- */
+
     .el-stats-bar{
         background:#fff;
         padding:3rem 0;
         border-bottom:1px solid #eef1f4;
     }
+
     .el-stats-bar .stat-num{
-        font-weight:800; font-size:2.4rem; color:var(--el-navy-700);
+        font-weight:800;
+        font-size:2.4rem;
+        color:var(--el-navy-700);
     }
+
     .el-stats-bar .stat-lbl{
-        color:#7a8ba0; font-weight:600; font-size:.92rem;
+        color:#7a8ba0;
+        font-weight:600;
+        font-size:.92rem;
     }
 
-    @media (max-width: 991px){
-        .el-app-card-holder{ margin-top:3rem; }
-    }
+    /* ---------- RESPONSIVO ---------- */
 
-    /* ---------- AJUSTES MOBILE GERAIS ---------- */
-    .el-app-card{ max-width:480px; margin:0 auto; }
-    @media (max-width: 575px){
-        .el-hero h1{ font-size:1.8rem; }
-        .el-hero-desc{ font-size:.95rem; max-width:100%; }
-        .el-btn-cta, .el-btn-ghost{
-            width:100%;
-            justify-content:center;
-            padding:.8rem 1.2rem;
+    @media (max-width:991px){
+
+        .el-navbar .container{
+            padding-left:20px;
+            padding-right:20px;
         }
-        .el-stats-bar{ padding:2rem 0; }
-        .el-stats-bar .stat-num{ font-size:1.9rem; }
+
+        .el-top-actions{
+            justify-content:center;
+        }
+
+        .el-app-card-holder{
+            margin-top:3rem;
+        }
+
+        .logo-img-mobile{
+            width:125px;
+        }
+    }
+
+    @media (max-width:576px){
+
+        .el-top-actions{
+            gap:8px;
+            margin-bottom:10px;
+        }
+
+        .el-btn-entrar,
+        .el-btn-cadastrar{
+            padding:.45rem .85rem;
+            font-size:.85rem;
+        }
+
+        .logo-img-mobile{
+            width:110px;
+        }
+
+        .el-hero{
+            padding-top:2rem !important;
+        }
+
+        .el-hero h1{
+            font-size:2rem;
+        }
     }
 </style>
 </head>
+
 <body class="el-body">
 
-<!-- BARRA DE TOPO ("rodapé invertido") -->
-<div class="el-topbar">
-    <div class="container el-topbar-inner">
-        <a href="/login" class="el-btn-entrar">Entrar</a>
-        <a href="/cadastro" class="el-btn-cadastrar">Cadastrar</a>
-    </div>
-</div>
-
 <div class="el-hero-wrap">
-    <!-- NAVBAR (só a logo) -->
+
+    <!-- NAVBAR -->
     <nav class="navbar el-navbar py-3">
-        <div class="container justify-content-center justify-content-lg-start">
+
+        <div class="container">
+
+            <!-- BOTÕES ACIMA DA LOGO -->
+            <div class="el-top-actions">
+
+                <a href="/login" class="el-btn-entrar">
+                    Entrar
+                </a>
+
+                <a href="/cadastro" class="el-btn-cadastrar">
+                    Cadastrar
+                </a>
+
+            </div>
+
+            <!-- LOGO MENOR -->
             <a class="el-brand" href="/inicio">
-                <img src="/images/LOGO.png" alt="Plataforma Exatos" class="el-logo-img">
+                <img
+                    src="/images/LOGO.png"
+                    alt="Plataforma Exatos"
+                    class="logo-img-mobile"
+                >
             </a>
+
         </div>
+
     </nav>
 
     <!-- HERO -->
     <div class="container el-hero pt-4 pt-lg-5 pb-5">
+
         <div class="row align-items-center g-5">
+
             <div class="col-lg-6">
+
                 <span class="el-eyebrow-pill mb-4 d-inline-flex">
-                    <span class="dot"></span> PIBID · CAPES · IFRN — Acesso gratuito
+                    <span class="dot"></span>
+                    PIBID · CAPES · IFRN — Acesso gratuito
                 </span>
 
                 <h1 class="mt-4 mb-4">
@@ -307,93 +474,208 @@
                 </p>
 
                 <div class="d-flex flex-column flex-sm-row gap-3 mb-4">
+
                     <a href="/cadastro" class="el-btn-cta">
                         Criar conta gratuita
-                        <span class="material-symbols-outlined" style="font-size:20px;">arrow_forward</span>
+
+                        <span
+                            class="material-symbols-outlined"
+                            style="font-size:20px;"
+                        >
+                            arrow_forward
+                        </span>
                     </a>
-                    <a href="/login" class="el-btn-ghost">Já tenho conta</a>
+
+                    <a href="/login" class="el-btn-ghost">
+                        Já tenho conta
+                    </a>
+
                 </div>
+
             </div>
 
             <div class="col-lg-6">
+
                 <div class="el-app-card-holder position-relative">
+
                     <div class="el-app-card">
+
                         <div class="el-app-card-topbar">
-                            <span></span><span></span><span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
                         </div>
+
                         <div class="el-app-card-body">
+
                             <div class="el-stat-row">
+
                                 <div>
                                     <div class="num">82%</div>
                                     <div class="lbl">Acertos</div>
                                 </div>
+
                                 <div>
-                                    <div class="num">1.800 <span class="material-symbols-outlined" style="font-size:16px;color:#ffc93d;">star</span></div>
+                                    <div class="num">
+                                        1.800
+                                        <span
+                                            class="material-symbols-outlined"
+                                            style="font-size:16px;color:#ffc93d;"
+                                        >
+                                            star
+                                        </span>
+                                    </div>
+
                                     <div class="lbl">pts</div>
                                 </div>
+
                             </div>
 
                             <div class="el-lesson-row">
+
                                 <span class="el-lesson-icon">
-                                    <span class="material-symbols-outlined" style="font-size:20px;">show_chart</span>
+                                    <span
+                                        class="material-symbols-outlined"
+                                        style="font-size:20px;"
+                                    >
+                                        show_chart
+                                    </span>
                                 </span>
+
                                 <div class="flex-grow-1">
-                                    <div class="el-lesson-title">Funções do 1º Grau</div>
-                                    <span class="el-lesson-badge">Básico</span>
+
+                                    <div class="el-lesson-title">
+                                        Funções do 1º Grau
+                                    </div>
+
+                                    <span class="el-lesson-badge">
+                                        Básico
+                                    </span>
+
                                 </div>
-                                <span class="el-lesson-check">✓ 5/5</span>
+
+                                <span class="el-lesson-check">
+                                    ✓ 5/5
+                                </span>
+
                             </div>
 
                             <div class="el-lesson-row">
+
                                 <span class="el-lesson-icon">
-                                    <span class="material-symbols-outlined" style="font-size:20px;">timeline</span>
+                                    <span
+                                        class="material-symbols-outlined"
+                                        style="font-size:20px;"
+                                    >
+                                        timeline
+                                    </span>
                                 </span>
+
                                 <div class="flex-grow-1">
-                                    <div class="el-lesson-title">Funções do 2º Grau</div>
-                                    <span class="el-lesson-badge">Intermediário</span>
+
+                                    <div class="el-lesson-title">
+                                        Funções do 2º Grau
+                                    </div>
+
+                                    <span class="el-lesson-badge">
+                                        Intermediário
+                                    </span>
+
                                 </div>
-                                <span class="el-lesson-check">✓ 4/5</span>
+
+                                <span class="el-lesson-check">
+                                    ✓ 4/5
+                                </span>
+
                             </div>
 
                             <div class="el-lesson-row">
+
                                 <span class="el-lesson-icon">
-                                    <span class="material-symbols-outlined" style="font-size:20px;">architecture</span>
+                                    <span
+                                        class="material-symbols-outlined"
+                                        style="font-size:20px;"
+                                    >
+                                        architecture
+                                    </span>
                                 </span>
+
                                 <div class="flex-grow-1">
-                                    <div class="el-lesson-title">Trigonometria</div>
-                                    <span class="el-lesson-badge">Intermediário</span>
+
+                                    <div class="el-lesson-title">
+                                        Trigonometria
+                                    </div>
+
+                                    <span class="el-lesson-badge">
+                                        Intermediário
+                                    </span>
+
                                 </div>
+
                                 <span class="el-lesson-play">
-                                    <span class="material-symbols-outlined" style="font-size:18px;">play_arrow</span>
+                                    <span
+                                        class="material-symbols-outlined"
+                                        style="font-size:18px;"
+                                    >
+                                        play_arrow
+                                    </span>
                                 </span>
+
                             </div>
+
                         </div>
+
                     </div>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
 
 <!-- STATS BAR -->
+
 <div class="el-stats-bar">
+
     <div class="container">
+
         <div class="row text-center g-4 justify-content-center">
-            
+
             <div class="col-6 col-md-4">
-                <div class="stat-num">8</div>
-                <div class="stat-lbl">Tópicos de Matemática</div>
+
+                <div class="stat-num">
+                    8
+                </div>
+
+                <div class="stat-lbl">
+                    Tópicos de Matemática
+                </div>
+
             </div>
 
             <div class="col-6 col-md-4">
-                <div class="stat-num">100%</div>
-                <div class="stat-lbl">Gratuito para alunos IFRN</div>
+
+                <div class="stat-num">
+                    100%
+                </div>
+
+                <div class="stat-lbl">
+                    Gratuito para alunos IFRN
+                </div>
+
             </div>
 
         </div>
+
     </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
