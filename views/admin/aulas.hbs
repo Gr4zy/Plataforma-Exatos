@@ -3,31 +3,44 @@
     .form-card {
         background: #fff;
     }
+
     .form-label {
         color: #0a4670;
         font-weight: 600;
     }
+
     .form-control:focus,
     .form-select:focus {
         border-color: #538cb4;
         box-shadow: 0 0 0 0.2rem rgba(83, 140, 180, 0.25);
     }
-    .dropzone {
-        border: 2px dashed #a9c9dd;
-        border-radius: 12px;
+
+    .material-item {
         background-color: #f3f7fa;
-        transition: all 0.2s ease;
-        cursor: pointer;
+        border: 1px solid #dce8f0;
+        border-radius: 10px;
     }
-    .dropzone:hover,
-    .dropzone.dragover {
+
+    .btn-remover-item {
+        color: #b3261e;
+    }
+
+    .btn-remover-item:hover {
+        background-color: #fdeceb;
+    }
+
+    .btn-adicionar-item {
+        border: 2px dashed #a9c9dd;
+        color: #0b7cc7;
+        background-color: #f3f7fa;
+    }
+
+    .btn-adicionar-item:hover {
         background-color: #e1f0fe;
         border-color: #0b7cc7;
-    }
-    .dropzone .material-symbols-outlined {
-        font-size: 2.2rem;
         color: #0b7cc7;
     }
+
     .aula-row .badge-nivel {
         font-size: 11px;
         font-weight: bold;
@@ -36,17 +49,19 @@
         background-color: #e1f0fe;
         color: #0b7cc7;
     }
+
     .btn-excluir {
         color: #b3261e;
     }
+
     .btn-excluir:hover {
         background-color: #fdeceb;
     }
+
     #alertBox {
         display: none;
     }
 </style>
-
 <h1 class="main-title mb-4" id="formTitulo">Cadastrar Aula</h1>
 
 <div id="alertBox" class="alert rounded-3" role="alert"></div>
@@ -57,7 +72,8 @@
         <div class="row g-4">
             <div class="col-md-8">
                 <label for="titulo" class="form-label">Título da aula *</label>
-                <input type="text" class="form-control" id="titulo" name="titulo" placeholder="Ex: Função do 1º Grau (Introdução)" required>
+                <input type="text" class="form-control" id="titulo" name="titulo"
+                    placeholder="Ex: Função do 1º Grau (Introdução)" required>
             </div>
 
             <div class="col-md-4">
@@ -76,38 +92,44 @@
 
             <div class="col-12">
                 <label for="link" class="form-label">URL da videoaula (YouTube) *</label>
-                <input type="url" class="form-control" id="link" name="link" placeholder="https://youtu.be/..." required>
+                <input type="url" class="form-control" id="link" name="link" placeholder="https://youtu.be/..."
+                    required>
             </div>
 
             <div class="col-12">
                 <label for="descricao" class="form-label">Descrição *</label>
-                <textarea class="form-control" id="descricao" name="descricao" rows="3" placeholder="Resumo do conteúdo abordado na aula" required></textarea>
+                <textarea class="form-control" id="descricao" name="descricao" rows="3"
+                    placeholder="Resumo do conteúdo abordado na aula" required></textarea>
             </div>
 
             <div class="col-12">
-                <label class="form-label">Material escrito (PDF)</label>
-                <p class="small text-muted mb-2" id="materialAtualTexto" style="display:none;"></p>
-                <div class="dropzone p-4 text-center" id="dropzone">
-                    <span class="material-symbols-outlined d-block mb-2">upload_file</span>
-                    <p class="mb-1 fw-semibold text-secondary" id="dropzoneTexto">
-                        Arraste um PDF aqui ou clique para selecionar
-                    </p>
-                    <p class="mb-0 small text-muted">Apenas arquivos .pdf — até 20MB</p>
-                    <input type="file" id="material" name="material" accept="application/pdf" class="d-none">
-                </div>
+                <label class="form-label">Material escrito (URL)</label>
+                <div id="listaMateriais" class="d-flex flex-column gap-2"></div>
+                <button type="button"
+                    class="btn btn-adicionar-item w-100 mt-2 d-flex align-items-center justify-content-center gap-2 py-2"
+                    id="btnAdicionarMaterial">
+                    <span class="material-symbols-outlined">add</span>
+                    Adicionar material
+                </button>
             </div>
         </div>
 
         <div class="d-flex flex-column flex-md-row gap-2 mt-4">
-            <button type="submit" class="btn btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2" id="btnSalvar">
+            <button type="submit"
+                class="btn btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2"
+                id="btnSalvar">
                 <span class="material-symbols-outlined" id="btnSalvarIcone">save</span>
                 <span id="btnSalvarTexto">Salvar aula</span>
             </button>
-            <button type="button" class="btn btn-outline-custom flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2 d-none" id="btnCancelarEdicao">
+            <button type="button"
+                class="btn btn-outline-custom flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2 d-none"
+                id="btnCancelarEdicao">
                 <span class="material-symbols-outlined">close</span>
                 Cancelar edição
             </button>
-            <button type="reset" class="btn btn-outline-custom flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2" id="btnLimpar">
+            <button type="reset"
+                class="btn btn-outline-custom flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2"
+                id="btnLimpar">
                 <span class="material-symbols-outlined">refresh</span>
                 Limpar
             </button>
@@ -117,54 +139,53 @@
 
 <h2 class="fs-4 main-title mb-3">Aulas cadastradas</h2>
 <div id="listaAulas" class="d-flex flex-column gap-3"></div>
+</main>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     const form = document.getElementById('formAula');
-    const dropzone = document.getElementById('dropzone');
-    const inputMaterial = document.getElementById('material');
-    const dropzoneTexto = document.getElementById('dropzoneTexto');
     const alertBox = document.getElementById('alertBox');
     const listaAulas = document.getElementById('listaAulas');
     const formTitulo = document.getElementById('formTitulo');
     const aulaIdInput = document.getElementById('aulaId');
-    const materialAtualTexto = document.getElementById('materialAtualTexto');
     const btnSalvarTexto = document.getElementById('btnSalvarTexto');
     const btnCancelarEdicao = document.getElementById('btnCancelarEdicao');
+    const listaMateriais = document.getElementById('listaMateriais');
+    const btnAdicionarMaterial = document.getElementById('btnAdicionarMaterial');
 
-    // --- Dropzone de PDF ---
-    dropzone.addEventListener('click', () => inputMaterial.click());
+    // --- Materiais dinâmicos (título + URL) ---
+    function criarLinhaMaterial(titulo = '', url = '') {
+        const linha = document.createElement('div');
+        linha.className = 'material-item p-2 d-flex flex-column flex-md-row gap-2 align-items-md-center';
+        linha.innerHTML = `
+                <input type="text" class="form-control form-control-sm campo-titulo-material" placeholder="Nome do material (ex: Apostila)" value="${titulo}">
+                <input type="url" class="form-control form-control-sm campo-url-material" placeholder="https://link-do-pdf-ou-drive..." value="${url}">
+                <button type="button" class="btn btn-sm btn-remover-item" title="Remover material">
+                    <span class="material-symbols-outlined fs-6">delete</span>
+                </button>
+            `;
+        linha.querySelector('.btn-remover-item').addEventListener('click', () => linha.remove());
+        listaMateriais.appendChild(linha);
+    }
 
-    inputMaterial.addEventListener('change', () => {
-        atualizarNomeArquivo();
-    });
+    btnAdicionarMaterial.addEventListener('click', () => criarLinhaMaterial());
 
-    ['dragenter', 'dragover'].forEach(evento => {
-        dropzone.addEventListener(evento, (e) => {
-            e.preventDefault();
-            dropzone.classList.add('dragover');
-        });
-    });
+    function coletarMateriais() {
+        return Array.from(listaMateriais.querySelectorAll('.material-item'))
+            .map(linha => ({
+                titulo: linha.querySelector('.campo-titulo-material').value.trim(),
+                url: linha.querySelector('.campo-url-material').value.trim()
+            }))
+            .filter(m => m.url !== '');
+    }
 
-    ['dragleave', 'drop'].forEach(evento => {
-        dropzone.addEventListener(evento, (e) => {
-            e.preventDefault();
-            dropzone.classList.remove('dragover');
-        });
-    });
-
-    dropzone.addEventListener('drop', (e) => {
-        const arquivo = e.dataTransfer.files[0];
-        if (arquivo) {
-            inputMaterial.files = e.dataTransfer.files;
-            atualizarNomeArquivo();
-        }
-    });
-
-    function atualizarNomeArquivo() {
-        if (inputMaterial.files.length > 0) {
-            dropzoneTexto.textContent = inputMaterial.files[0].name;
-        } else {
-            dropzoneTexto.textContent = 'Arraste um PDF aqui ou clique para selecionar';
+    function preencherMateriais(materiais) {
+        listaMateriais.innerHTML = '';
+        if (materiais && materiais.length) {
+            materiais.forEach(m => criarLinhaMaterial(m.titulo, m.url));
         }
     }
 
@@ -180,9 +201,17 @@
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const dadosForm = new FormData(form);
         const idEmEdicao = aulaIdInput.value;
         const estaEditando = !!idEmEdicao;
+
+        const dados = {
+            titulo: document.getElementById('titulo').value.trim(),
+            subtitulo: document.getElementById('subtitulo').value.trim(),
+            descricao: document.getElementById('descricao').value.trim(),
+            link: document.getElementById('link').value.trim(),
+            nivel: document.getElementById('nivel').value,
+            materiais: coletarMateriais()
+        };
 
         const url = estaEditando
             ? `/admin/aulas/api/aulas/${idEmEdicao}`
@@ -192,7 +221,8 @@
         try {
             const resposta = await fetch(url, {
                 method: metodo,
-                body: dadosForm
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
             });
 
             const resultado = await resposta.json();
@@ -223,12 +253,7 @@
             document.getElementById('link').value = aula.link || '';
             document.getElementById('nivel').value = aula.nivel || 'Básico';
 
-            if (aula.materialUrl) {
-                materialAtualTexto.innerHTML = `Material atual: <a href="${aula.materialUrl}" target="_blank">ver PDF</a> — envie um novo arquivo abaixo apenas se quiser substituí-lo.`;
-                materialAtualTexto.style.display = 'block';
-            } else {
-                materialAtualTexto.style.display = 'none';
-            }
+            preencherMateriais(aula.materiais);
 
             formTitulo.textContent = 'Editar Aula';
             btnSalvarTexto.textContent = 'Atualizar aula';
@@ -243,14 +268,16 @@
     function cancelarEdicao() {
         form.reset();
         aulaIdInput.value = '';
-        materialAtualTexto.style.display = 'none';
-        dropzoneTexto.textContent = 'Arraste um PDF aqui ou clique para selecionar';
+        listaMateriais.innerHTML = '';
         formTitulo.textContent = 'Cadastrar Aula';
         btnSalvarTexto.textContent = 'Salvar aula';
         btnCancelarEdicao.classList.add('d-none');
     }
 
     btnCancelarEdicao.addEventListener('click', cancelarEdicao);
+    document.getElementById('btnLimpar').addEventListener('click', () => {
+        setTimeout(() => { listaMateriais.innerHTML = ''; }, 0);
+    });
 
     // --- Listagem das aulas já cadastradas ---
     async function carregarAulas() {
@@ -271,34 +298,31 @@
 
         listaAulas.innerHTML = '';
         aulas.slice().reverse().forEach(aula => {
+            const materiais = aula.materiais || [];
             const item = document.createElement('div');
             item.className = 'card aula-row border-0 shadow-sm rounded-4 p-3';
             item.innerHTML = `
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-                    <div>
-                        <span class="badge-nivel me-2">${aula.nivel}</span>
-                        <strong class="text-secondary">${aula.subtitulo || ''}</strong>
-                        <h3 class="fs-6 mb-1 mt-1" style="color:#0a4670;">${aula.titulo}</h3>
-                        <p class="text-secondary small mb-0">${aula.descricao}</p>
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                        <div>
+                            <span class="badge-nivel me-2">${aula.nivel}</span>
+                            <strong class="text-secondary">${aula.subtitulo || ''}</strong>
+                            <h3 class="fs-6 mb-1 mt-1" style="color:#0a4670;">${aula.titulo}</h3>
+                            <p class="text-secondary small mb-0">${aula.descricao}</p>
+                            ${materiais.length ? `<p class="small text-muted mb-0 mt-1">${materiais.length} material(is) anexado(s)</p>` : ''}
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="${aula.link}" target="_blank" class="btn btn-sm btn-outline-custom d-flex align-items-center gap-1">
+                                <span class="material-symbols-outlined fs-6">play_arrow</span> Vídeo
+                            </a>
+                            <button class="btn btn-sm btn-outline-custom d-flex align-items-center gap-1" onclick="editarAula(${aula.id})">
+                                <span class="material-symbols-outlined fs-6">edit</span> Editar
+                            </button>
+                            <button class="btn btn-sm btn-excluir d-flex align-items-center gap-1" onclick="excluirAula(${aula.id})">
+                                <span class="material-symbols-outlined fs-6">delete</span>
+                            </button>
+                        </div>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <a href="${aula.link}" target="_blank" class="btn btn-sm btn-outline-custom d-flex align-items-center gap-1">
-                            <span class="material-symbols-outlined fs-6">play_arrow</span> Vídeo
-                        </a>
-                        ${aula.materialUrl
-                            ? `<a href="${aula.materialUrl}" target="_blank" class="btn btn-sm btn-outline-custom d-flex align-items-center gap-1">
-                                   <span class="material-symbols-outlined fs-6">picture_as_pdf</span> PDF
-                               </a>`
-                            : ''}
-                        <button class="btn btn-sm btn-outline-custom d-flex align-items-center gap-1" onclick="editarAula(${aula.id})">
-                            <span class="material-symbols-outlined fs-6">edit</span> Editar
-                        </button>
-                        <button class="btn btn-sm btn-excluir d-flex align-items-center gap-1" onclick="excluirAula(${aula.id})">
-                            <span class="material-symbols-outlined fs-6">delete</span>
-                        </button>
-                    </div>
-                </div>
-            `;
+                `;
             listaAulas.appendChild(item);
         });
     }

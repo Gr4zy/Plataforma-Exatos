@@ -1,0 +1,336 @@
+<h1 class="main-title mb-4" id="formTitulo">Cadastrar Quiz</h1>
+
+<div id="alertBox" class="alert rounded-3" role="alert"></div>
+
+<div class="card shadow-sm border-0 rounded-4 p-4 p-md-5 form-card mb-5">
+    <form id="formQuiz" novalidate>
+        <input type="hidden" id="quizId" value="">
+
+        <div class="row g-4 mb-2">
+            <div class="col-md-8">
+                <label for="tituloQuiz" class="form-label">Título do quiz *</label>
+                <input type="text" class="form-control" id="tituloQuiz" placeholder="Ex: Quiz - Função do 1º Grau"
+                    required>
+            </div>
+            <div class="col-md-4">
+                <label for="aulaRelacionada" class="form-label">Aula relacionada</label>
+                <select class="form-select" id="aulaRelacionada">
+                    <option value="">Nenhuma (quiz avulso)</option>
+                </select>
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div id="listaPerguntas" class="d-flex flex-column gap-4"></div>
+
+        <button type="button"
+            class="btn btn-adicionar-item w-100 mt-3 d-flex align-items-center justify-content-center gap-2 py-2"
+            id="btnAdicionarPergunta">
+            <span class="material-symbols-outlined">add</span>
+            Adicionar pergunta
+        </button>
+
+        <div class="d-flex flex-column flex-md-row gap-2 mt-4">
+            <button type="submit"
+                class="btn btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2">
+                <span class="material-symbols-outlined">save</span>
+                <span id="btnSalvarTexto">Salvar quiz</span>
+            </button>
+            <button type="button"
+                class="btn btn-outline-custom flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2 d-none"
+                id="btnCancelarEdicao">
+                <span class="material-symbols-outlined">close</span>
+                Cancelar edição
+            </button>
+        </div>
+    </form>
+</div>
+
+<h2 class="fs-4 main-title mb-3">Quizzes cadastrados</h2>
+<div id="listaQuizzes" class="d-flex flex-column gap-3"></div>
+
+<script>
+    const form = document.getElementById('formQuiz');
+    const alertBox = document.getElementById('alertBox');
+    const formTitulo = document.getElementById('formTitulo');
+    const quizIdInput = document.getElementById('quizId');
+    const tituloQuizInput = document.getElementById('tituloQuiz');
+    const aulaRelacionadaSelect = document.getElementById('aulaRelacionada');
+    const listaPerguntas = document.getElementById('listaPerguntas');
+    const btnAdicionarPergunta = document.getElementById('btnAdicionarPergunta');
+    const btnSalvarTexto = document.getElementById('btnSalvarTexto');
+    const btnCancelarEdicao = document.getElementById('btnCancelarEdicao');
+    const listaQuizzes = document.getElementById('listaQuizzes');
+
+    let contadorPerguntas = 0;
+    let aulasCache = [];
+
+    function mostrarAlerta(mensagem, tipo) {
+        alertBox.className = `alert rounded-3 alert-${tipo}`;
+        alertBox.textContent = mensagem;
+        alertBox.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => { alertBox.style.display = 'none'; }, 4500);
+    }
+
+    async function carregarAulasSelect() {
+        try {
+            const resposta = await fetch('/admin/aulas/api/aulas');
+            aulasCache = await resposta.json();
+            aulaRelacionadaSelect.innerHTML = '<option value="">Nenhuma (quiz avulso)</option>' +
+                aulasCache.map(a => `<option value="${a.id}">${a.titulo}</option>`).join('');
+        } catch (erro) {
+            console.error('Não foi possível carregar as aulas para o select.', erro);
+        }
+    }
+
+    function criarBlocoPergunta(dados = null) {
+        contadorPerguntas++;
+        const idPergunta = contadorPerguntas;
+
+        const bloco = document.createElement('div');
+        bloco.className = 'bloco-pergunta p-3 p-md-4';
+        bloco.dataset.idPergunta = idPergunta;
+
+        bloco.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="pergunta-numero">Pergunta</span>
+                    <button type="button" class="btn btn-sm btn-remover-item d-flex align-items-center gap-1 btn-remover-pergunta">
+                        <span class="material-symbols-outlined fs-6">delete</span> Remover pergunta
+                    </button>
+                </div>
+
+                <label class="form-label">Enunciado *</label>
+                <textarea class="form-control campo-enunciado mb-3" rows="2" placeholder="Digite a pergunta..." required></textarea>
+
+                <label class="form-label">Alternativas * <span class="fw-normal text-muted">(marque a correta)</span></label>
+                <div class="d-flex flex-column gap-2 mb-2 lista-alternativas"></div>
+
+                <button type="button" class="btn btn-sm btn-outline-custom mb-3 d-flex align-items-center gap-1 btn-add-alternativa">
+                    <span class="material-symbols-outlined fs-6">add</span> Adicionar alternativa
+                </button>
+
+                <label class="form-label">Resolução / explicação</label>
+                <textarea class="form-control campo-resolucao" rows="2" placeholder="Explique por que a alternativa correta está certa (opcional)"></textarea>
+            `;
+
+        const listaAlternativas = bloco.querySelector('.lista-alternativas');
+
+        function criarLinhaAlternativa(texto = '', correta = false) {
+            const linha = document.createElement('div');
+            linha.className = 'linha-alternativa p-2 d-flex align-items-center gap-2' + (correta ? ' alternativa-correta' : '');
+            linha.innerHTML = `
+                    <input type="radio" class="form-check-input flex-shrink-0 campo-correta" name="correta-${idPergunta}" ${correta ? 'checked' : ''}>
+                    <input type="text" class="form-control form-control-sm campo-texto-alternativa border-0" placeholder="Texto da alternativa" value="${texto}">
+                    <button type="button" class="btn btn-sm btn-remover-item flex-shrink-0 btn-remover-alternativa">
+                        <span class="material-symbols-outlined fs-6">close</span>
+                    </button>
+                `;
+            linha.querySelector('.campo-correta').addEventListener('change', () => {
+                listaAlternativas.querySelectorAll('.linha-alternativa').forEach(l => l.classList.remove('alternativa-correta'));
+                linha.classList.add('alternativa-correta');
+            });
+            linha.querySelector('.btn-remover-alternativa').addEventListener('click', () => linha.remove());
+            listaAlternativas.appendChild(linha);
+        }
+
+        if (dados && dados.alternativas && dados.alternativas.length) {
+            dados.alternativas.forEach(alt => criarLinhaAlternativa(alt.texto, alt.correta));
+        } else {
+            for (let i = 0; i < 4; i++) criarLinhaAlternativa();
+        }
+
+        bloco.querySelector('.btn-add-alternativa').addEventListener('click', () => criarLinhaAlternativa());
+        bloco.querySelector('.btn-remover-pergunta').addEventListener('click', () => bloco.remove());
+
+        if (dados) {
+            bloco.querySelector('.campo-enunciado').value = dados.enunciado || '';
+            bloco.querySelector('.campo-resolucao').value = dados.resolucao || '';
+        }
+
+        listaPerguntas.appendChild(bloco);
+    }
+
+    btnAdicionarPergunta.addEventListener('click', () => criarBlocoPergunta());
+
+    function coletarPerguntas() {
+        return Array.from(listaPerguntas.querySelectorAll('.bloco-pergunta')).map(bloco => {
+            const alternativas = Array.from(bloco.querySelectorAll('.linha-alternativa')).map(linha => ({
+                texto: linha.querySelector('.campo-texto-alternativa').value.trim(),
+                correta: linha.querySelector('.campo-correta').checked
+            })).filter(a => a.texto !== '');
+
+            return {
+                enunciado: bloco.querySelector('.campo-enunciado').value.trim(),
+                alternativas,
+                resolucao: bloco.querySelector('.campo-resolucao').value.trim()
+            };
+        });
+    }
+
+    function validarAntesDeEnviar(perguntas) {
+        if (!tituloQuizInput.value.trim()) {
+            mostrarAlerta('Dê um título para o quiz.', 'danger');
+            return false;
+        }
+        if (!perguntas.length) {
+            mostrarAlerta('Adicione pelo menos uma pergunta.', 'danger');
+            return false;
+        }
+        for (const p of perguntas) {
+            if (!p.enunciado) {
+                mostrarAlerta('Toda pergunta precisa de um enunciado.', 'danger');
+                return false;
+            }
+            if (p.alternativas.length < 2) {
+                mostrarAlerta('Cada pergunta precisa de pelo menos 2 alternativas preenchidas.', 'danger');
+                return false;
+            }
+            if (!p.alternativas.some(a => a.correta)) {
+                mostrarAlerta('Marque a alternativa correta de cada pergunta.', 'danger');
+                return false;
+            }
+        }
+        return true;
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const perguntas = coletarPerguntas();
+        if (!validarAntesDeEnviar(perguntas)) return;
+
+        const idEmEdicao = quizIdInput.value;
+        const estaEditando = !!idEmEdicao;
+
+        const dados = {
+            titulo: tituloQuizInput.value.trim(),
+            aulaId: aulaRelacionadaSelect.value || null,
+            perguntas
+        };
+
+        const url = estaEditando ? `/admin/quizzes/api/quizzes/${idEmEdicao}` : '/admin/quizzes/api/quizzes';
+        const metodo = estaEditando ? 'PUT' : 'POST';
+
+        try {
+            const resposta = await fetch(url, {
+                method: metodo,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            const resultado = await resposta.json();
+            if (!resposta.ok) {
+                throw new Error(resultado.erro || 'Não foi possível salvar o quiz.');
+            }
+
+            mostrarAlerta(estaEditando ? 'Quiz atualizado com sucesso!' : 'Quiz cadastrado com sucesso!', 'success');
+            cancelarEdicao();
+            carregarQuizzes();
+        } catch (erro) {
+            mostrarAlerta(erro.message, 'danger');
+        }
+    });
+
+    async function editarQuiz(id) {
+        try {
+            const resposta = await fetch(`/admin/quizzes/api/quizzes/${id}`);
+            if (!resposta.ok) throw new Error('Não foi possível carregar o quiz.');
+            const quiz = await resposta.json();
+
+            quizIdInput.value = quiz.id;
+            tituloQuizInput.value = quiz.titulo || '';
+            aulaRelacionadaSelect.value = quiz.aulaId || '';
+
+            listaPerguntas.innerHTML = '';
+            (quiz.perguntas || []).forEach(p => criarBlocoPergunta(p));
+
+            formTitulo.textContent = 'Editar Quiz';
+            btnSalvarTexto.textContent = 'Atualizar quiz';
+            btnCancelarEdicao.classList.remove('d-none');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (erro) {
+            mostrarAlerta(erro.message, 'danger');
+        }
+    }
+
+    function cancelarEdicao() {
+        form.reset();
+        quizIdInput.value = '';
+        listaPerguntas.innerHTML = '';
+        criarBlocoPergunta();
+        formTitulo.textContent = 'Cadastrar Quiz';
+        btnSalvarTexto.textContent = 'Salvar quiz';
+        btnCancelarEdicao.classList.add('d-none');
+    }
+
+    btnCancelarEdicao.addEventListener('click', cancelarEdicao);
+
+    async function carregarQuizzes() {
+        try {
+            const resposta = await fetch('/admin/quizzes/api/quizzes');
+            const quizzes = await resposta.json();
+            renderizarLista(quizzes);
+        } catch (erro) {
+            listaQuizzes.innerHTML = '<p class="text-muted">Não foi possível carregar os quizzes.</p>';
+        }
+    }
+
+    function nomeDaAula(aulaId) {
+        if (!aulaId) return 'Quiz avulso';
+        const aula = aulasCache.find(a => Number(a.id) === Number(aulaId));
+        return aula ? aula.titulo : 'Aula não encontrada';
+    }
+
+    function renderizarLista(quizzes) {
+        if (!quizzes.length) {
+            listaQuizzes.innerHTML = '<p class="text-muted">Nenhum quiz cadastrado ainda.</p>';
+            return;
+        }
+
+        listaQuizzes.innerHTML = '';
+        quizzes.slice().reverse().forEach(quiz => {
+            const item = document.createElement('div');
+            item.className = 'card quiz-row border-0 shadow-sm rounded-4 p-3';
+            item.innerHTML = `
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                        <div>
+                            <span class="badge-perguntas me-2">${quiz.perguntas.length} pergunta(s)</span>
+                            <h3 class="fs-6 mb-1 mt-1" style="color:#0a4670;">${quiz.titulo}</h3>
+                            <p class="text-secondary small mb-0">Vinculado a: ${nomeDaAula(quiz.aulaId)}</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-sm btn-outline-custom d-flex align-items-center gap-1" onclick="editarQuiz(${quiz.id})">
+                                <span class="material-symbols-outlined fs-6">edit</span> Editar
+                            </button>
+                            <button class="btn btn-sm btn-excluir d-flex align-items-center gap-1" onclick="excluirQuiz(${quiz.id})">
+                                <span class="material-symbols-outlined fs-6">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            listaQuizzes.appendChild(item);
+        });
+    }
+
+    async function excluirQuiz(id) {
+        if (!confirm('Tem certeza que deseja excluir este quiz?')) return;
+        try {
+            const resposta = await fetch(`/admin/quizzes/api/quizzes/${id}`, { method: 'DELETE' });
+            if (!resposta.ok && resposta.status !== 204) {
+                throw new Error('Não foi possível excluir o quiz.');
+            }
+            carregarQuizzes();
+        } catch (erro) {
+            mostrarAlerta(erro.message, 'danger');
+        }
+    }
+
+    (async function iniciar() {
+        await carregarAulasSelect();
+        criarBlocoPergunta();
+        carregarQuizzes();
+    })();
+</script>

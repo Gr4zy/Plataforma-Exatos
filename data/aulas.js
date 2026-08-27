@@ -1,8 +1,3 @@
-// data/aulas.js
-// Armazenamento em memória das aulas cadastradas.
-// (Se o projeto já usa banco de dados, substitua este módulo pelas
-// chamadas ao model/DB, mantendo a mesma assinatura das funções abaixo.)
-
 let listaDeAulas = [
   {
     id: 1,
@@ -11,7 +6,7 @@ let listaDeAulas = [
     descricao: "Aprenda o conceito inicial de função afim, gráfico, coeficiente angular e linear.",
     link: "https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ",
     nivel: "Básico",
-    materialUrl: "/uploads/materiais/1787092825332-971659280.pdf"
+    materiais: [] 
   },
   {
     id: 2,
@@ -20,7 +15,7 @@ let listaDeAulas = [
     descricao: "Domine a fórmula de Bhaskara e aprenda a encontrar as raízes de uma equação quadrática.",
     link: "https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ",
     nivel: "Intermediário",
-    materialUrl: "/uploads/materiais/1787092825332-971659280.pdf"
+    materiais: []
   },
   {
     id: 3,
@@ -29,7 +24,7 @@ let listaDeAulas = [
     descricao: "Entenda os princípios de contagem, arranjo, combinação e agrupamentos matemáticos.",
     link: "https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ",
     nivel: "Avançado",
-    materialUrl: "/uploads/materiais/1787092825332-971659280.pdf"
+    materiais: []
   },
   {
     id: 4,
@@ -38,7 +33,7 @@ let listaDeAulas = [
     descricao: "Como calcular a área de quadrados, retângulos, triângulos e círculos sem mistérios.",
     link: "https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ",
     nivel: "Básico",
-    materialUrl: "/uploads/materiais/1787092825332-971659280.pdf"
+    materiais: []
   }
 ];
 
@@ -52,7 +47,18 @@ function buscarAulaPorId(id) {
   return listaDeAulas.find(a => a.id === Number(id));
 }
 
-function adicionarAula({ subtitulo, titulo, descricao, link, nivel, materialUrl }) {
+// Normaliza a lista de materiais recebida do front (remove itens vazios/incompletos)
+function normalizarMateriais(materiais) {
+  if (!Array.isArray(materiais)) return [];
+  return materiais
+    .filter(m => m && m.url && m.url.trim() !== "")
+    .map(m => ({
+      titulo: (m.titulo && m.titulo.trim()) || "Material",
+      url: m.url.trim()
+    }));
+}
+
+function adicionarAula({ subtitulo, titulo, descricao, link, nivel, materiais }) {
   const novaAula = {
     id: proximoId++,
     subtitulo: subtitulo || "",
@@ -60,13 +66,13 @@ function adicionarAula({ subtitulo, titulo, descricao, link, nivel, materialUrl 
     descricao,
     link,
     nivel: nivel || "Básico",
-    materialUrl: materialUrl || null
+    materiais: normalizarMateriais(materiais)
   };
   listaDeAulas.push(novaAula);
   return novaAula;
 }
 
-function atualizarAula(id, { subtitulo, titulo, descricao, link, nivel, materialUrl }) {
+function atualizarAula(id, { subtitulo, titulo, descricao, link, nivel, materiais }) {
   const aula = buscarAulaPorId(id);
   if (!aula) return null;
 
@@ -75,11 +81,7 @@ function atualizarAula(id, { subtitulo, titulo, descricao, link, nivel, material
   aula.descricao = descricao;
   aula.link = link;
   aula.nivel = nivel || "Básico";
-
-  // Só troca o material se um novo PDF foi enviado (undefined = manter o atual)
-  if (materialUrl !== undefined) {
-    aula.materialUrl = materialUrl;
-  }
+  aula.materiais = normalizarMateriais(materiais);
 
   return aula;
 }
