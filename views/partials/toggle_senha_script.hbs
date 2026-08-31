@@ -1,0 +1,18 @@
+<script>
+    const botao = document.getElementById("mostrarSenha");
+    const senha = document.getElementById("senha");
+
+    botao.addEventListener("click", () => {
+
+        if (senha.type === "password") {
+            senha.type = "text";
+            botao.classList.remove("fa-eye");
+            botao.classList.add("fa-eye-slash");
+        } else {
+            senha.type = "password";
+            botao.classList.remove("fa-eye-slash");
+            botao.classList.add("fa-eye");
+        }
+
+    });
+</script>

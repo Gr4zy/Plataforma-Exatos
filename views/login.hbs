@@ -6,16 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Plataforma Exatos</title>
 
-    <link rel="stylesheet" href="/login.css">
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    {{> auth_head}}
 </head>
 
 <body>
 
     <div class="container">
 
-        <div class="left">
+        <div class="left" onclick="window.location.href='/inicio'" style="cursor: pointer;">
 
             <img src="/images/LOGO.png" class="logo">
 
@@ -76,25 +74,7 @@
         </div>
 
     </div>
-    <script>
-        //script para mostrar senha
-        const botao = document.getElementById("mostrarSenha");
-        const senha = document.getElementById("senha");
-
-        botao.addEventListener("click", () => {
-
-            if (senha.type === "password") {
-                senha.type = "text";
-                botao.classList.remove("fa-eye");
-                botao.classList.add("fa-eye-slash");
-            } else {
-                senha.type = "password";
-                botao.classList.remove("fa-eye-slash");
-                botao.classList.add("fa-eye");
-            }
-
-        });
-    </script>
+    {{> toggle_senha_script}}
 </body>
 
 </html>

@@ -21,18 +21,29 @@
         return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1` : url;
     }
 
-    function assistirAula(subtitulo, titulo, descricao, link, nivel, materialUrl) {
-        const aulaSelecionada = {
-            subtitulo,
-            titulo,
-            descricao,
-            link,
-            nivel,
-            materialUrl: materialUrl || null
-        };
+    // Guarda as aulas já carregadas para conseguir buscar os dados completos
+    // (incluindo a lista de materiais) a partir só do id, sem precisar
+    // colocar tudo dentro do atributo onclick.
+    let aulasCarregadas = [];
 
-        localStorage.setItem('aulaAssistindo', JSON.stringify(aulaSelecionada));
+    function assistirAula(id) {
+        const aula = aulasCarregadas.find(a => a.id === id);
+        if (!aula) return;
+
+        localStorage.setItem('aulaAssistindo', JSON.stringify(aula));
         window.location.href = '/classes';
+    }
+
+    function renderizarBotoesMateriais(materiais, classes) {
+        if (!Array.isArray(materiais) || materiais.length === 0) return '';
+
+        return materiais.map(material => `
+            <a href="${material.url}" target="_blank" title="${material.titulo || 'Material da aula'}"
+               class="${classes}"
+               onclick="event.stopPropagation()">
+                <span class="material-symbols-outlined">menu_book</span>
+                ${material.titulo || 'Material'}
+            </a>`).join('');
     }
 
     if (pathAtual === '/classes') {
@@ -70,11 +81,7 @@
                                 <span class="material-symbols-outlined">arrow_back</span> 
                                 Voltar para as aulas
                             </a>
-                            ${aula.materialUrl ? `
-                            <a href="${aula.materialUrl}" target="_blank" class="btn btn-outline-custom flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2">
-                                <span class="material-symbols-outlined">menu_book</span>
-                                Material
-                            </a>` : ''}
+                            ${renderizarBotoesMateriais(aula.materiais, 'btn btn-outline-custom flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2')}
                             <a href="/quizz" class="btn btn-success flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2">
                                 <span class="material-symbols-outlined">quiz</span> 
                                 Fazer Quiz
@@ -109,11 +116,9 @@
     }
 
     function renderizarAulas(aulas) {
+        aulasCarregadas = aulas;
         container.innerHTML = '';
         aulas.forEach(aula => {
-            const tituloEscapado = aula.titulo.replace(/'/g, "&apos;");
-            const descricaoEscapada = aula.descricao.replace(/'/g, "&apos;");
-
             const cardHtml = `
                 <div class="col">
                     <div class="card h-100 shadow-sm border-0 rounded-4 p-4 position-relative d-flex flex-column justify-content-between">
@@ -129,18 +134,12 @@
                         <div class="mt-3 d-flex gap-2">
                             <button
                                 class="btn btn-primary rounded-pill flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2"
-                                onclick="assistirAula('${aula.subtitulo}', '${tituloEscapado}', '${descricaoEscapada}', '${aula.link}', '${aula.nivel}', '${aula.materialUrl || ''}')">
+                                onclick="assistirAula(${aula.id})">
 
                                 <span class="material-symbols-outlined">play_arrow</span>
                                 Aula
                             </button>
-                            ${aula.materialUrl ? `
-                            <a href="${aula.materialUrl}" target="_blank" title="Material da aula"
-                               class="btn btn-outline-custom rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 px-3 text-nowrap"
-                               onclick="event.stopPropagation()">
-                                <span class="material-symbols-outlined">menu_book</span>
-                                Material
-                            </a>` : ''}
+                            ${renderizarBotoesMateriais(aula.materiais, 'btn btn-outline-custom rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 px-3 text-nowrap')}
                         </div>
                     </div>
                 </div>
