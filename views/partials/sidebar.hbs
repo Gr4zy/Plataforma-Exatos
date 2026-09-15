@@ -1,4 +1,4 @@
-<aside class="col-lg-2 bg-custom-sidebar text-white min-vh-100 p-3 d-none d-lg-block position-sticky top-0 h-100">
+<aside class="col-lg-2 bg-custom-sidebar text-white min-vh-100 p-3 d-none d-lg-flex flex-column position-sticky top-0 h-100">
     <div class="logo-area text-center py-3 mb-4">
         <img src="/images/LOGO.png" alt="Plataforma Exatos" class="logo-img img-fluid">
     </div>
@@ -12,6 +12,7 @@
             <span class="material-symbols-outlined">play_arrow</span>
             Videoaulas
         </a>
+        {{#if (ehGestor usuarioLogado.perfil)}}
         <a href="/admin/aulas" id="btn-admin-aulas" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
             <span class="material-symbols-outlined">add_box</span>
             Cadastrar Aula
@@ -20,5 +21,18 @@
             <span class="material-symbols-outlined">quiz</span>
             Cadastrar Quiz
         </a>
+        {{/if}}
     </nav>
+
+    {{#if usuarioLogado}}
+    <div class="mt-auto pt-3 border-top border-light border-opacity-25">
+        <div class="px-2 mb-2 text-white text-opacity-75 small text-truncate" title="{{usuarioLogado.nome}}">
+            {{usuarioLogado.nome}}
+        </div>
+        <a href="/logout" id="btn-sair" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
+            <span class="material-symbols-outlined">logout</span>
+            Sair
+        </a>
+    </div>
+    {{/if}}
 </aside>

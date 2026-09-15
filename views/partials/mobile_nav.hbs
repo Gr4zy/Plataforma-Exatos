@@ -17,6 +17,7 @@
                     <span class="material-symbols-outlined">play_arrow</span>
                     Videoaulas
                 </a>
+                {{#if (ehGestor usuarioLogado.perfil)}}
                 <a href="/admin/aulas" id="btn-admin-aulas-mobile" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2 fs-5">
                     <span class="material-symbols-outlined">add_box</span>
                     Cadastrar Aula
@@ -25,6 +26,14 @@
                     <span class="material-symbols-outlined">quiz</span>
                     Cadastrar Quiz
                 </a>
+                {{/if}}
+                {{#if usuarioLogado}}
+                <hr class="border-light border-opacity-25 my-1">
+                <a href="/logout" id="btn-sair-mobile" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2 fs-5">
+                    <span class="material-symbols-outlined">logout</span>
+                    Sair ({{usuarioLogado.nome}})
+                </a>
+                {{/if}}
             </div>
         </div>
     </div>

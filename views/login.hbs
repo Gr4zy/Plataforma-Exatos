@@ -42,6 +42,12 @@
 
                 <span>PIBID com você no ENEM e no IFRN</span>
 
+                {{#if erro}}
+                <div class="alert-erro" style="background:#fdecea;color:#611a15;border:1px solid #f5c2c0;border-radius:8px;padding:10px 14px;margin-top:14px;font-size:0.9rem;">
+                    {{erro}}
+                </div>
+                {{/if}}
+
                 <form action="/login" method="POST">
                     <label>E-mail</label>
 

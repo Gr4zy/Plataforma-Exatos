@@ -21,9 +21,6 @@
         return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1` : url;
     }
 
-    // Guarda as aulas já carregadas para conseguir buscar os dados completos
-    // (incluindo a lista de materiais) a partir só do id, sem precisar
-    // colocar tudo dentro do atributo onclick.
     let aulasCarregadas = [];
 
     function assistirAula(id) {
@@ -58,13 +55,9 @@
             container.innerHTML = `
                 <div class="col-12">
                     <div class="card shadow-sm border-0 rounded-4 p-4 position-relative">
-                       <span class="badge custom-badge position-absolute top-0 end-0 m-3">${aula.nivel}</span>
-
                             <h3 class="card-title mt-3">${aula.titulo}</h3>
 
                             <p class="text-secondary card-desc">${aula.descricao}</p>
-
-                            <h2 class="mt-4 mb-3 text-center">${aula.subtitulo}</h2>
 
                             <div class="video-container rounded-3 overflow-hidden shadow-sm mb-4">
                                 <iframe 
@@ -123,10 +116,6 @@
                 <div class="col">
                     <div class="card h-100 shadow-sm border-0 rounded-4 p-4 position-relative d-flex flex-column justify-content-between">
                        <div>
-<span class="badge custom-badge position-absolute top-0 end-0 m-3">${aula.nivel}</span>
-
-<h2 class="card-subtitulo mb-2">${aula.subtitulo}</h2>
-
 <h3 class="card-title fs-4">${aula.titulo}</h3>
 
 <p class="text-secondary card-desc small">${aula.descricao}</p>

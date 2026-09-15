@@ -141,3 +141,7 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Banco de dados local (SQLite)
+*.sqlite
+*.sqlite3

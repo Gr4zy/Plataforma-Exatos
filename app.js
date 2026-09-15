@@ -1,8 +1,10 @@
+require('dotenv').config();
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var session = require('express-session');
 
 var indexRouter = require('./routes/index');
 var classesRouter = require('./routes/classes');
@@ -20,6 +22,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// RF01 - sessão do usuário autenticado (login/logout)
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'plataforma-exatos-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 1000 * 60 * 60 * 8 }, // 8 horas
+}));
+
+// Deixa o usuário logado (sem a senha) disponível em todas as views
+app.use(function (req, res, next) {
+  res.locals.usuarioLogado = req.session.usuario || null;
+  next();
+});
 
 app.use('/', indexRouter);
 app.use('/admin', adminRouter);
@@ -42,10 +58,24 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+var db = require('./models');
+db.sequelize.sync().then(async () => {
+  console.log('Banco de dados sincronizado!');
+  try {
+    const seed = require('./scripts/seed');
+    await seed();
+  } catch (erro) {
+    console.error('Falha ao semear o banco de dados:', erro.message);
+  }
+});
+
 module.exports = app;
 
 const hbs = require('hbs');
 hbs.registerPartials(__dirname + '/views/partials');
 
+const UserProfile = require('./models/enums/UserProfile');
 
-
+hbs.registerHelper('ehGestor', function (perfil) {
+  return perfil === UserProfile.SCHOLAR || perfil === UserProfile.ADMIN;
+});

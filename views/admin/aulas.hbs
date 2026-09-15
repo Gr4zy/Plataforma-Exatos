@@ -70,24 +70,10 @@
     <form id="formAula" novalidate>
         <input type="hidden" id="aulaId" name="aulaId" value="">
         <div class="row g-4">
-            <div class="col-md-8">
+            <div class="col-12">
                 <label for="titulo" class="form-label">Título da aula *</label>
                 <input type="text" class="form-control" id="titulo" name="titulo"
                     placeholder="Ex: Função do 1º Grau (Introdução)" required>
-            </div>
-
-            <div class="col-md-4">
-                <label for="nivel" class="form-label">Nível *</label>
-                <select class="form-select" id="nivel" name="nivel" required>
-                    <option value="Básico">Básico</option>
-                    <option value="Intermediário">Intermediário</option>
-                    <option value="Avançado">Avançado</option>
-                </select>
-            </div>
-
-            <div class="col-md-8">
-                <label for="subtitulo" class="form-label">Assunto / Subtítulo</label>
-                <input type="text" class="form-control" id="subtitulo" name="subtitulo" placeholder="Ex: Álgebra">
             </div>
 
             <div class="col-12">
@@ -206,10 +192,8 @@
 
         const dados = {
             titulo: document.getElementById('titulo').value.trim(),
-            subtitulo: document.getElementById('subtitulo').value.trim(),
             descricao: document.getElementById('descricao').value.trim(),
             link: document.getElementById('link').value.trim(),
-            nivel: document.getElementById('nivel').value,
             materiais: coletarMateriais()
         };
 
@@ -248,10 +232,8 @@
 
             aulaIdInput.value = aula.id;
             document.getElementById('titulo').value = aula.titulo || '';
-            document.getElementById('subtitulo').value = aula.subtitulo || '';
             document.getElementById('descricao').value = aula.descricao || '';
             document.getElementById('link').value = aula.link || '';
-            document.getElementById('nivel').value = aula.nivel || 'Básico';
 
             preencherMateriais(aula.materiais);
 
@@ -304,8 +286,6 @@
             item.innerHTML = `
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
                         <div>
-                            <span class="badge-nivel me-2">${aula.nivel}</span>
-                            <strong class="text-secondary">${aula.subtitulo || ''}</strong>
                             <h3 class="fs-6 mb-1 mt-1" style="color:#0a4670;">${aula.titulo}</h3>
                             <p class="text-secondary small mb-0">${aula.descricao}</p>
                             ${materiais.length ? `<p class="small text-muted mb-0 mt-1">${materiais.length} material(is) anexado(s)</p>` : ''}
