@@ -1,120 +1,109 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exatos - Quiz</title>
-  <link rel="stylesheet" href="/quizz.css">
-</head>
-<body>
+<link rel="stylesheet" href="/quizz.css">
 
-  <div class="app">
+<div class="quiz-page">
 
-    <!-- TOPBAR GLOBAL: fica por cima de sidebar + conteúdo, igual nas duas telas -->
-    <header class="topbar-global">
-      <div class="points">
-        <span class="star">★</span> Pontos <strong id="pontos">0</strong>
-      </div>
-      <div class="user">
-        <span class="avatar" id="user-avatar">Us</span>
-        <span id="user-name">Usuário</span>
-      </div>
-    </header>
-
-    <div class="app-body">
-
-      <!-- CONTEÚDO PRINCIPAL -->
-      <main class="content">
-
-        <!-- ===================== TELA 1: APRESENTAÇÃO DO QUIZ ===================== -->
-        <section id="tela-inicial" class="screen">
-          <a href="/classes" class="back-link" id="link-voltar-inicio">← Voltar</a>
-
-          <div class="intro-card">
-            <div class="intro-icon"></div>
-            <h1 class="intro-title">Quiz: Funções do 1° Grau</h1>
-            <p class="intro-desc">
-              5 questões de múltipla escolha no estilo ENEM.<br>
-              Leia com atenção antes de responder.
-            </p>
-
-            <div class="intro-stats">
-              <div class="stat">
-                <span class="stat-value">5</span>
-                <span class="stat-label">Questões</span>
-              </div>
-              <div class="stat">
-                <span class="stat-value">ENEM</span>
-                <span class="stat-label">Estilo</span>
-              </div>
-              <div class="stat">
-                <span class="stat-value">+50</span>
-                <span class="stat-label">Pontos</span>
-              </div>
-            </div>
-
-            <button type="button" id="btn-comecar" class="nav-btn primary large">Começar Quiz</button>
-          </div>
-        </section>
-
-        <!-- ===================== TELA 2: O QUIZ EM SI ===================== -->
-        <section id="tela-quiz" class="screen hidden">
-          <a href="#" class="back-link" id="link-sair-quiz">← Sair do quiz</a>
-
-          <!-- Um <form> de verdade: é a forma padrão da web de coletar dados do
-               usuário e permite usar validação nativa do navegador -->
-          <form id="quiz-form" class="quiz-card">
-            <fieldset class="quiz-card-top">
-              <legend class="sr-only">Informações da questão</legend>
-              <span class="badge" id="badge-questao">Questão 1</span>
-              <span class="topic" id="topico">Funções do 1° Grau</span>
-              <span class="progress-count" id="progresso">1 / 5</span>
-            </fieldset>
-
-            <h2 class="question" id="pergunta">Qual é a raiz da função f(x) = 2x - 6?</h2>
-
-            <!-- As opções (input type="radio") são inseridas aqui via JavaScript,
-                 a partir do array quizData em script.js -->
-            <div class="options" id="options-container"></div>
-
-            <div class="explanation hidden" id="explicacao-atual">
-              <p class="explanation-status" id="explicacao-status"></p>
-              <p id="explicacao-texto"></p>
-            </div>
-
-            <div class="quiz-actions">
-              <button type="submit" id="btn-proximo" class="nav-btn primary">Próxima →</button>
-            </div>
-          </form>
-
-          <!-- DOTS DE PAGINAÇÃO (clicáveis, navegam entre questões) -->
-          <div class="dots" id="dots-container"></div>
-
-          <!-- Área de resultado final, escondida até o quiz acabar -->
-          <div class="result-box hidden" id="result-box">
-            <div class="result-header">
-              <div class="result-circle">
-                <span id="score">0</span>/<span id="total">5</span>
-              </div>
-              <h3>Resultado</h3>
-              <p class="result-topic" id="result-topic">Funções do 1° Grau</p>
-            </div>
-
-            <div class="result-percent" id="result-percent"></div>
-
-            <h4 class="review-title">Revisão das questões</h4>
-            <div id="review-list" class="review-list"></div>
-
-            <div class="result-actions">
-              <button type="button" id="btn-voltar-inicio" class="nav-btn primary">Voltar ao início</button>
-            </div>
-          </div>
-        </section>
-
-      </main>
-    </div>
+  <!-- ===================== ESTADO: CARREGANDO ===================== -->
+  <div id="estado-carregando" class="estado-info">
+    <p class="mb-0">Carregando o quiz...</p>
   </div>
 
- <script src="/quizz.js"></script>
-</body>
-</html>
+  <!-- ===================== ESTADO: ERRO / SEM QUIZ ===================== -->
+  <div id="estado-erro" class="estado-info hidden">
+    <p class="mb-3" id="estado-erro-texto">Não foi possível carregar o quiz.</p>
+    <a href="/classes" class="nav-btn primary">← Voltar para as aulas</a>
+  </div>
+
+  <!-- ===================== TELA 1: APRESENTAÇÃO DO QUIZ ===================== -->
+  <section id="tela-inicial" class="screen hidden">
+    <a href="/classes" class="back-link">← Voltar</a>
+
+    <div class="intro-card">
+      <div class="intro-icon">
+        <span class="material-symbols-outlined">quiz</span>
+      </div>
+      <h1 class="intro-title" id="intro-titulo">Quiz</h1>
+      <p class="intro-desc" id="intro-descricao">
+        Questões de múltipla escolha. Leia com atenção antes de responder —
+        depois de respondida, a questão não pode ser alterada.
+      </p>
+
+      <div class="intro-stats">
+        <div class="stat">
+          <span class="stat-value" id="intro-total-perguntas">0</span>
+          <span class="stat-label">Questões</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="intro-dificuldade">-</span>
+          <span class="stat-label">Nível</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="intro-pontos-possiveis">+0</span>
+          <span class="stat-label">Pontos</span>
+        </div>
+      </div>
+
+      <p class="quiz-points hidden" id="intro-progresso-texto"></p>
+
+      <button type="button" id="btn-comecar" class="nav-btn primary large">Começar Quiz</button>
+    </div>
+  </section>
+
+  <!-- ===================== TELA 2: O QUIZ EM SI ===================== -->
+  <section id="tela-quiz" class="screen hidden">
+    <a href="#" class="back-link" id="link-sair-quiz">← Sair do quiz</a>
+
+    <form id="quiz-form" class="quiz-card" onsubmit="return false;">
+      <fieldset class="quiz-card-top">
+        <legend class="sr-only">Informações da questão</legend>
+        <span class="badge" id="badge-questao">Questão 1</span>
+        <span class="topic" id="topico"></span>
+        <span class="progress-count" id="progresso">1 / 1</span>
+      </fieldset>
+
+      <img id="pergunta-imagem" class="question-image hidden" alt="Imagem da questão">
+      <h2 class="question" id="pergunta">-</h2>
+
+      <!-- As alternativas são inseridas aqui via JavaScript -->
+      <div class="options" id="options-container"></div>
+
+      <div class="explanation hidden" id="explicacao-atual">
+        <p class="explanation-status" id="explicacao-status"></p>
+        <p id="explicacao-texto"></p>
+      </div>
+
+      <div class="quiz-actions">
+        <button type="button" id="btn-proximo" class="nav-btn primary" disabled>Próxima →</button>
+      </div>
+    </form>
+
+    <!-- DOTS DE PAGINAÇÃO -->
+    <div class="dots" id="dots-container"></div>
+
+    <!-- Área de resultado final -->
+    <div class="result-box hidden" id="result-box">
+      <div class="result-header">
+        <div class="result-circle">
+          <span id="score">0</span>/<span id="total">0</span>
+        </div>
+        <h3>Resultado</h3>
+        <p class="result-topic" id="result-topic"></p>
+      </div>
+
+      <div class="result-percent" id="result-percent"></div>
+
+      <h4 class="review-title">Revisão das questões</h4>
+      <div id="review-list" class="review-list"></div>
+
+      <div class="result-actions">
+        <button type="button" id="btn-voltar-inicio" class="nav-btn primary">Voltar às aulas</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  window.QUIZ_AULA_ID = new URLSearchParams(window.location.search).get('aulaId') || '';
+</script>
+
+<script src="/quizz.js"></script>

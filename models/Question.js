@@ -15,20 +15,8 @@ Question.init(
       allowNull: false,
       validate: { notEmpty: { msg: 'Toda pergunta precisa de um enunciado.' } },
     },
-    correct: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: { isIn: [['alternative_1', 'alternative_2', 'alternative_3']] },
-    },
-    alternative_1: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    alternative_2: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    alternative_3: {
+    // Imagem opcional exibida junto ao enunciado da questão.
+    image: {
       type: DataTypes.STRING,
       allowNull: true,
     },

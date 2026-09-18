@@ -1,7 +1,12 @@
 var express = require('express');
 var router = express.Router();
+const crypto = require('crypto');
 const { User } = require('../models');
 const UserProfile = require('../models/enums/UserProfile');
+const { exigirLogin } = require('../middlewares/auth');
+const { enviarEmailRecuperacaoSenha } = require('../services/brevoMailer');
+
+const VALIDADE_TOKEN_MS = 60 * 60 * 1000; // 1 hora
 
 /* GET página inicial: landing pública para visitantes, painel para quem já
    está logado. */
@@ -72,6 +77,121 @@ router.get('/logout', function (req, res) {
   });
 });
 
+/* GET tela "esqueci minha senha" */
+router.get('/esqueci-senha', function (req, res) {
+  if (req.session.usuario) return res.redirect('/');
+  res.render('esqueci-senha', { layout: false });
+});
+
+/* POST processa o pedido de recuperação de senha - envia e-mail via Brevo.
+   Sempre responde com a mesma mensagem de sucesso, exista ou não o e-mail
+   na base, para não revelar quais e-mails estão cadastrados. */
+router.post('/esqueci-senha', async function (req, res, next) {
+  const { email } = req.body;
+
+  if (!email || !email.trim()) {
+    return res.status(400).render('esqueci-senha', {
+      layout: false,
+      erro: 'Informe o seu e-mail cadastrado.',
+    });
+  }
+
+  const mensagemSucesso =
+    'Se este e-mail estiver cadastrado, enviaremos um link de redefinição de senha em instantes. Verifique também a caixa de spam.';
+
+  try {
+    const usuario = await User.findByEmail(email.trim().toLowerCase());
+
+    if (usuario && !usuario.excluido) {
+      const token = crypto.randomBytes(32).toString('hex');
+      usuario.resetPasswordToken = token;
+      usuario.resetPasswordExpires = new Date(Date.now() + VALIDADE_TOKEN_MS);
+      await usuario.save();
+
+      const link = `${req.protocol}://${req.get('host')}/redefinir-senha/${token}`;
+
+      try {
+        await enviarEmailRecuperacaoSenha({ email: usuario.email, nome: usuario.name, link });
+      } catch (erroEnvio) {
+        // Não expõe detalhes do provedor de e-mail ao usuário; apenas loga
+        // no servidor para diagnóstico.
+        console.error('Falha ao enviar e-mail de recuperação de senha:', erroEnvio.message);
+      }
+    }
+
+    res.render('esqueci-senha', { layout: false, sucesso: mensagemSucesso });
+  } catch (erro) {
+    next(erro);
+  }
+});
+
+/* GET tela de redefinição de senha (a partir do link recebido por e-mail) */
+router.get('/redefinir-senha/:token', async function (req, res, next) {
+  try {
+    const usuario = await User.findByValidResetToken(req.params.token);
+
+    if (!usuario) {
+      return res.status(400).render('redefinir-senha', {
+        layout: false,
+        tokenInvalido: true,
+      });
+    }
+
+    res.render('redefinir-senha', { layout: false, token: req.params.token });
+  } catch (erro) {
+    next(erro);
+  }
+});
+
+/* POST processa a nova senha definida pelo usuário */
+router.post('/redefinir-senha/:token', async function (req, res, next) {
+  const { senha, confirmarSenha } = req.body;
+  const token = req.params.token;
+
+  try {
+    const usuario = await User.findByValidResetToken(token);
+
+    if (!usuario) {
+      return res.status(400).render('redefinir-senha', { layout: false, tokenInvalido: true });
+    }
+
+    if (!senha || !confirmarSenha) {
+      return res.status(400).render('redefinir-senha', {
+        layout: false,
+        token,
+        erro: 'Preencha a nova senha nos dois campos.',
+      });
+    }
+
+    if (senha !== confirmarSenha) {
+      return res.status(400).render('redefinir-senha', {
+        layout: false,
+        token,
+        erro: 'As senhas informadas não coincidem.',
+      });
+    }
+
+    usuario.password = senha; // RN02 - validado/hasheado pelos hooks do model
+    usuario.resetPasswordToken = null;
+    usuario.resetPasswordExpires = null;
+    await usuario.save();
+
+    res.render('login', {
+      layout: false,
+      sucesso: 'Senha redefinida com sucesso! Faça login com sua nova senha.',
+    });
+  } catch (erro) {
+    if (erro.name === 'SequelizeValidationError') {
+      return res.status(400).render('redefinir-senha', {
+        layout: false,
+        token,
+        erro: erro.errors[0]?.message || 'Não foi possível redefinir a senha.',
+      });
+    }
+    next(erro);
+  }
+});
+
 /* GET tela de cadastro */
 router.get('/cadastro', function (req, res, next) {
   if (req.session.usuario) return res.redirect('/');
@@ -127,9 +247,10 @@ router.post('/cadastro', async function (req, res, next) {
   }
 });
 
-/* GET tela do quiz (demo estática) */
-router.get('/quizz', function (req, res, next) {
-  res.render('quizz', { layout: false });
+/* GET tela do quiz - RF06. Precisa estar logado (o progresso é salvo por
+   usuário) e usa o layout padrão do site (mesma sidebar das outras telas). */
+router.get('/quizz', exigirLogin, function (req, res, next) {
+  res.render('quizz', { title: 'Quiz' });
 });
 
 module.exports = router;

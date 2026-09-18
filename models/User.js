@@ -17,6 +17,16 @@ class User extends Model {
   static async findByEmail(email) {
     return await this.findOne({ where: { email } });
   }
+
+  static async findByValidResetToken(token) {
+    const { Op } = require('sequelize');
+    return await this.findOne({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: { [Op.gt]: new Date() },
+      },
+    });
+  }
 }
 
 User.init(
@@ -67,6 +77,16 @@ User.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
+    },
+    // Recuperação de senha por e-mail (Brevo): token de uso único e sua
+    // validade. Nunca são expostos nas telas, apenas usados no back-end.
+    resetPasswordToken: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    resetPasswordExpires: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
   },
   {

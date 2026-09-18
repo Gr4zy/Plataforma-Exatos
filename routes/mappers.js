@@ -36,44 +36,90 @@ function lessonToAula(lesson) {
   };
 }
 
-// Um Question do diagrama guarda exatamente 3 alternativas fixas
-// (alternative_1/2/3) e um campo "correct" apontando qual delas é a certa.
+function alternativaToJSON(alternative) {
+  const a = alternative.toJSON ? alternative.toJSON() : alternative;
+  return {
+    id: a.id,
+    texto: a.text,
+    correta: a.correct,
+    imagemUrl: a.image || null,
+  };
+}
+
+// Uma Question agora tem quantas Alternative forem necessárias (não mais
+// limitada a 3 colunas fixas). Por padrão revela qual é a correta (uso do
+// painel de administração); para a tela do aluno, veja
+// `questionToPerguntaAluno`, que omite essa informação nas questões ainda
+// não respondidas.
 function questionToPergunta(question) {
   const q = question.toJSON ? question.toJSON() : question;
-  const alternativas = [];
-  ['alternative_1', 'alternative_2', 'alternative_3'].forEach((chave) => {
-    if (q[chave] && q[chave].trim() !== '') {
-      alternativas.push({ texto: q[chave], correta: q.correct === chave });
-    }
-  });
+  const alternativas = (q.alternatives || [])
+    .slice()
+    .sort((a, b) => a.order - b.order)
+    .map(alternativaToJSON);
   return {
     id: q.id,
     enunciado: q.statement,
     resolucao: q.explanation,
-    imagemUrl: (q.images && q.images[0] && q.images[0].image) || null,
+    imagemUrl: q.image || null,
     alternativas,
   };
 }
 
-// Recebe { enunciado, alternativas: [{texto, correta}], resolucao } vindo do
+// Versão da questão pronta para ser exibida ao aluno: se `respostaDada` for
+// informada (o aluno já respondeu essa questão nessa tentativa), revela qual
+// alternativa é a correta e qual foi a escolhida; caso contrário, esconde o
+// campo `correta` de cada alternativa para não entregar a resposta antes da
+// hora.
+function questionToPerguntaAluno(question, respostaDada) {
+  const q = question.toJSON ? question.toJSON() : question;
+  const alternativasOrdenadas = (q.alternatives || []).slice().sort((a, b) => a.order - b.order);
+
+  const alternativas = alternativasOrdenadas.map((a) => ({
+    id: a.id,
+    texto: a.text,
+    imagemUrl: a.image || null,
+    ...(respostaDada ? { correta: a.correct } : {}),
+  }));
+
+  return {
+    id: q.id,
+    enunciado: q.statement,
+    imagemUrl: q.image || null,
+    alternativas,
+    respondida: !!respostaDada,
+    ...(respostaDada
+      ? {
+          resolucao: q.explanation,
+          suaAlternativaId: respostaDada.alternativeId,
+          acertou: respostaDada.correct,
+        }
+      : {}),
+  };
+}
+
+// Recebe { enunciado, imagemUrl, alternativas, resolucao } vindo do
 // formulário e devolve os campos já no formato do model Question.
 function perguntaToQuestionAttrs(pergunta) {
-  const alternativasValidas = (pergunta.alternativas || []).filter(
-    (a) => a && a.texto && a.texto.trim() !== ''
-  );
-  const chaves = ['alternative_1', 'alternative_2', 'alternative_3'];
-  const attrs = {
+  return {
     statement: pergunta.enunciado.trim(),
     explanation: (pergunta.resolucao || '').trim(),
-    correct: 'alternative_1',
+    image: (pergunta.imagemUrl && pergunta.imagemUrl.trim()) || null,
   };
+}
 
-  alternativasValidas.slice(0, 3).forEach((alternativa, indice) => {
-    attrs[chaves[indice]] = alternativa.texto.trim();
-    if (alternativa.correta) attrs.correct = chaves[indice];
-  });
-
-  return attrs;
+// Recebe as alternativas de uma pergunta (já filtradas) e devolve as linhas
+// prontas para popular o model Alternative de uma Question já criada.
+function alternativasToAttrs(questionId, alternativas) {
+  return (alternativas || [])
+    .filter((a) => a && a.texto && a.texto.trim() !== '')
+    .map((alternativa, indice) => ({
+      questionId,
+      text: alternativa.texto.trim(),
+      correct: !!alternativa.correta,
+      image: (alternativa.imagemUrl && alternativa.imagemUrl.trim()) || null,
+      order: indice,
+    }));
 }
 
 function quizToJSON(quiz) {
@@ -90,6 +136,25 @@ function quizToJSON(quiz) {
   };
 }
 
+// Versão do quiz pronta para a tela de "fazer o quiz": `respostasPorQuestao`
+// é um Map<questionId, Answer> com o que o aluno já respondeu nessa
+// tentativa (pode ser vazio se ele ainda não começou).
+function quizToJSONAluno(quiz, respostasPorQuestao) {
+  const q = quiz.toJSON ? quiz.toJSON() : quiz;
+  const quizQuestions = (q.quizQuestions || []).slice().sort((a, b) => a.order - b.order);
+  return {
+    id: q.id,
+    titulo: q.title,
+    descricao: q.description,
+    categoria: q.category,
+    dificuldade: levelToNivel(q.level),
+    aulaId: q.lessonId,
+    perguntas: quizQuestions.map((qq) =>
+      questionToPerguntaAluno(qq.question, respostasPorQuestao && respostasPorQuestao.get(qq.question.id))
+    ),
+  };
+}
+
 module.exports = {
   NIVEIS,
   levelToNivel,
@@ -97,6 +162,9 @@ module.exports = {
   attachmentToMaterial,
   lessonToAula,
   questionToPergunta,
+  questionToPerguntaAluno,
   perguntaToQuestionAttrs,
+  alternativasToAttrs,
   quizToJSON,
+  quizToJSONAluno,
 };

@@ -8,13 +8,13 @@ const {
   Quiz,
   Question,
   QuizQuestion,
-  QuestionImage,
+  Alternative,
   User,
 } = require('../models');
 const LessonStatus = require('../models/enums/LessonStatus');
 const UserProfile = require('../models/enums/UserProfile');
 const { exigirGestor, exigirGestorPagina, exigirAdmin } = require('../middlewares/auth');
-const { lessonToAula, quizToJSON, nivelToLevel, perguntaToQuestionAttrs } = require('./mappers');
+const { lessonToAula, quizToJSON, nivelToLevel, perguntaToQuestionAttrs, alternativasToAttrs } = require('./mappers');
 
 /* =========================================================================
  * AULAS (Lesson) - RF02
@@ -164,7 +164,7 @@ const includeQuizCompleto = [
       {
         model: Question,
         as: 'question',
-        include: [{ model: QuestionImage, as: 'images' }],
+        include: [{ model: Alternative, as: 'alternatives' }],
       },
     ],
   },
@@ -197,6 +197,10 @@ router.get('/quizzes/api/quizzes/:id', exigirGestor, async function (req, res, n
   }
 });
 
+// RN: cada pergunta admite de 2 a 10 alternativas (o antigo limite fixo de 3
+// era uma limitação do esquema anterior, com colunas alternative_1/2/3).
+const MAX_ALTERNATIVAS = 10;
+
 function validarPerguntas(perguntas) {
   if (!Array.isArray(perguntas) || perguntas.length === 0) {
     return 'Informe um título e pelo menos uma pergunta.';
@@ -212,8 +216,8 @@ function validarPerguntas(perguntas) {
     if (alternativasValidas.length < 2) {
       return 'Cada pergunta precisa de pelo menos 2 alternativas.';
     }
-    if (alternativasValidas.length > 3) {
-      return 'Cada pergunta admite no máximo 3 alternativas (de acordo com o diagrama de classes).';
+    if (alternativasValidas.length > MAX_ALTERNATIVAS) {
+      return `Cada pergunta admite no máximo ${MAX_ALTERNATIVAS} alternativas.`;
     }
     if (!alternativasValidas.some((a) => a.correta)) {
       return 'Marque a alternativa correta de cada pergunta.';
@@ -222,11 +226,17 @@ function validarPerguntas(perguntas) {
   return null;
 }
 
-// Recria (do zero) as Question + QuizQuestion de um quiz.
+// Recria (do zero) as Question + Alternative + QuizQuestion de um quiz.
 async function criarPerguntas(quizId, perguntas, transaction) {
   for (let indice = 0; indice < perguntas.length; indice++) {
     const pergunta = perguntas[indice];
     const question = await Question.create(perguntaToQuestionAttrs(pergunta), { transaction });
+
+    const linhasAlternativas = alternativasToAttrs(question.id, pergunta.alternativas);
+    if (linhasAlternativas.length) {
+      await Alternative.bulkCreate(linhasAlternativas, { transaction });
+    }
+
     await QuizQuestion.create({ quizId, questionId: question.id, order: indice }, { transaction });
   }
 }

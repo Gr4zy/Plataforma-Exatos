@@ -85,6 +85,34 @@
         }
     }
 
+    function montarBlocoImagem(urlInicial, placeholder) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'bloco-imagem d-flex align-items-center gap-2 mb-2';
+
+        wrapper.innerHTML = `
+            <img class="preview-imagem ${urlInicial ? '' : 'd-none'}" src="${urlInicial || ''}" alt="Preview" style="width:40px;height:40px;object-fit:cover;border-radius:8px;flex-shrink:0;">
+            <input type="url" class="form-control form-control-sm campo-imagem-url" placeholder="${placeholder} (cole a URL da imagem)" value="${urlInicial || ''}">
+        `;
+
+        const preview = wrapper.querySelector('.preview-imagem');
+        const input = wrapper.querySelector('.campo-imagem-url');
+
+        input.addEventListener('input', () => {
+            const url = input.value.trim();
+            if (url) {
+                preview.src = url;
+                preview.classList.remove('d-none');
+            } else {
+                preview.src = '';
+                preview.classList.add('d-none');
+            }
+        });
+
+        preview.addEventListener('error', () => preview.classList.add('d-none'));
+
+        return wrapper;
+    }
+
     function criarBlocoPergunta(dados = null) {
         contadorPerguntas++;
         const idPergunta = contadorPerguntas;
@@ -102,9 +130,12 @@
                 </div>
 
                 <label class="form-label">Enunciado *</label>
-                <textarea class="form-control campo-enunciado mb-3" rows="2" placeholder="Digite a pergunta..." required></textarea>
+                <textarea class="form-control campo-enunciado mb-2" rows="2" placeholder="Digite a pergunta..." required></textarea>
 
-                <label class="form-label">Alternativas * <span class="fw-normal text-muted">(marque a correta)</span></label>
+                <label class="form-label small text-muted">Imagem da questão (opcional)</label>
+                <div class="bloco-imagem-questao mb-3"></div>
+
+                <label class="form-label">Alternativas * <span class="fw-normal text-muted">(marque a correta, até 10 alternativas)</span></label>
                 <div class="d-flex flex-column gap-2 mb-2 lista-alternativas"></div>
 
                 <button type="button" class="btn btn-sm btn-outline-custom mb-3 d-flex align-items-center gap-1 btn-add-alternativa">
@@ -115,14 +146,27 @@
                 <textarea class="form-control campo-resolucao" rows="2" placeholder="Explique por que a alternativa correta está certa (opcional)"></textarea>
             `;
 
-        const listaAlternativas = bloco.querySelector('.lista-alternativas');
+        const blocoImagemQuestao = montarBlocoImagem(dados && dados.imagemUrl, 'Imagem da questão');
+        bloco.querySelector('.bloco-imagem-questao').appendChild(blocoImagemQuestao);
 
-        function criarLinhaAlternativa(texto = '', correta = false) {
+        const listaAlternativas = bloco.querySelector('.lista-alternativas');
+        const MAX_ALTERNATIVAS = 10;
+
+        function atualizarBotaoAdicionar() {
+            const btn = bloco.querySelector('.btn-add-alternativa');
+            const total = listaAlternativas.querySelectorAll('.linha-alternativa').length;
+            btn.disabled = total >= MAX_ALTERNATIVAS;
+        }
+
+        function criarLinhaAlternativa(texto = '', correta = false, imagemUrl = '') {
+            if (listaAlternativas.querySelectorAll('.linha-alternativa').length >= MAX_ALTERNATIVAS) return;
+
             const linha = document.createElement('div');
-            linha.className = 'linha-alternativa p-2 d-flex align-items-center gap-2' + (correta ? ' alternativa-correta' : '');
+            linha.className = 'linha-alternativa p-2 d-flex align-items-center gap-2 flex-wrap' + (correta ? ' alternativa-correta' : '');
             linha.innerHTML = `
                     <input type="radio" class="form-check-input flex-shrink-0 campo-correta" name="correta-${idPergunta}" ${correta ? 'checked' : ''}>
-                    <input type="text" class="form-control form-control-sm campo-texto-alternativa border-0" placeholder="Texto da alternativa" value="${texto}">
+                    <input type="text" class="form-control form-control-sm campo-texto-alternativa border-0" placeholder="Texto da alternativa" value="${texto}" style="min-width:160px;">
+                    <div class="bloco-imagem-alternativa" style="min-width:220px;"></div>
                     <button type="button" class="btn btn-sm btn-remover-item flex-shrink-0 btn-remover-alternativa">
                         <span class="material-symbols-outlined fs-6">close</span>
                     </button>
@@ -131,12 +175,20 @@
                 listaAlternativas.querySelectorAll('.linha-alternativa').forEach(l => l.classList.remove('alternativa-correta'));
                 linha.classList.add('alternativa-correta');
             });
-            linha.querySelector('.btn-remover-alternativa').addEventListener('click', () => linha.remove());
+            linha.querySelector('.btn-remover-alternativa').addEventListener('click', () => {
+                linha.remove();
+                atualizarBotaoAdicionar();
+            });
+
+            const blocoImagemAlt = montarBlocoImagem(imagemUrl, 'Imagem da alternativa');
+            linha.querySelector('.bloco-imagem-alternativa').appendChild(blocoImagemAlt);
+
             listaAlternativas.appendChild(linha);
+            atualizarBotaoAdicionar();
         }
 
         if (dados && dados.alternativas && dados.alternativas.length) {
-            dados.alternativas.forEach(alt => criarLinhaAlternativa(alt.texto, alt.correta));
+            dados.alternativas.forEach(alt => criarLinhaAlternativa(alt.texto, alt.correta, alt.imagemUrl));
         } else {
             for (let i = 0; i < 4; i++) criarLinhaAlternativa();
         }
@@ -156,13 +208,20 @@
 
     function coletarPerguntas() {
         return Array.from(listaPerguntas.querySelectorAll('.bloco-pergunta')).map(bloco => {
-            const alternativas = Array.from(bloco.querySelectorAll('.linha-alternativa')).map(linha => ({
-                texto: linha.querySelector('.campo-texto-alternativa').value.trim(),
-                correta: linha.querySelector('.campo-correta').checked
-            })).filter(a => a.texto !== '');
+            const alternativas = Array.from(bloco.querySelectorAll('.linha-alternativa')).map(linha => {
+                const urlAlt = linha.querySelector('.bloco-imagem-alternativa .campo-imagem-url');
+                return {
+                    texto: linha.querySelector('.campo-texto-alternativa').value.trim(),
+                    correta: linha.querySelector('.campo-correta').checked,
+                    imagemUrl: urlAlt ? urlAlt.value.trim() : ''
+                };
+            }).filter(a => a.texto !== '');
+
+            const urlQuestao = bloco.querySelector('.bloco-imagem-questao .campo-imagem-url');
 
             return {
                 enunciado: bloco.querySelector('.campo-enunciado').value.trim(),
+                imagemUrl: urlQuestao ? urlQuestao.value.trim() : '',
                 alternativas,
                 resolucao: bloco.querySelector('.campo-resolucao').value.trim()
             };
@@ -185,6 +244,10 @@
             }
             if (p.alternativas.length < 2) {
                 mostrarAlerta('Cada pergunta precisa de pelo menos 2 alternativas preenchidas.', 'danger');
+                return false;
+            }
+            if (p.alternativas.length > 10) {
+                mostrarAlerta('Cada pergunta admite no máximo 10 alternativas.', 'danger');
                 return false;
             }
             if (!p.alternativas.some(a => a.correta)) {

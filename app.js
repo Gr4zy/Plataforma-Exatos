@@ -59,6 +59,11 @@ app.use(function(err, req, res, next) {
 });
 
 var db = require('./models');
+// Sem migrations: quando os models mudarem (novas colunas/tabelas), apague
+// o database.sqlite e rode `npm run seed` de novo. NÃO use `alter: true`
+// aqui: no SQLite ele recria as tabelas por baixo dos panos e, em testes,
+// isso já resetou colunas de chave estrangeira (como Quiz.lessonId) que só
+// existiam via associação - perdendo dados nas tabelas relacionadas a quiz.
 db.sequelize.sync().then(async () => {
   console.log('Banco de dados sincronizado!');
   try {

@@ -1,73 +1,38 @@
 /* ==========================================================
-   1) DADOS DO QUIZ
-   Em vez de escrever cada questão "na mão" no HTML, guardamos
-   tudo em um array de objetos. Isso é o que permite reaproveitar
-   o mesmo HTML/CSS pra QUALQUER quantidade de perguntas.
+   Tela de quiz do aluno - conectada à API real:
+     GET  /classes/api/aulas/:id/quiz            -> carrega o quiz da aula
+     POST /classes/api/quizzes/:quizId/responder -> registra cada resposta
+
+   Cada resposta é enviada ao servidor assim que o aluno escolhe uma
+   alternativa. A partir daí a questão fica travada (não é mais possível
+   trocar a resposta), tanto na tela quanto no banco de dados.
    ========================================================== */
-   const quizData = [
-    {
-      topico: "Funções do 1° Grau",
-      pergunta: "Qual é a raiz da função f(x) = 2x - 6?",
-      opcoes: ["x = -3", "x = 3", "x = 6", "x = -6", "x = 12"],
-      correta: 2, // índice da opção certa (C)
-      resolucao: "A raiz é o valor de x que torna f(x) = 0. Fazendo 2x - 6 = 0, temos 2x = 6, logo x = 6."
-    },
-    {
-      topico: "Funções do 1° Grau",
-      pergunta: "Qual é o coeficiente angular da função f(x) = 3x + 4?",
-      opcoes: ["4", "3", "-3", "1", "7"],
-      correta: 1,
-      resolucao: "Numa função do 1° grau f(x) = ax + b, o coeficiente angular é o valor de a. Aqui a = 3."
-    },
-    {
-      topico: "Funções do 1° Grau",
-      pergunta: "Em f(x) = -2x + 8, para qual valor de x temos f(x) = 0?",
-      opcoes: ["x = 2", "x = -4", "x = 8", "x = 4", "x = -2"],
-      correta: 3,
-      resolucao: "Fazendo -2x + 8 = 0, temos -2x = -8, logo x = 4."
-    },
-    {
-      topico: "Funções do 1° Grau",
-      pergunta: "A função f(x) = 5x é classificada como:",
-      opcoes: ["Afim", "Linear", "Constante", "Quadrática", "Do 2° grau"],
-      correta: 1,
-      resolucao: "Quando f(x) = ax (sem termo independente, ou seja, b = 0), a função é chamada de linear."
-    },
-    {
-      topico: "Funções do 1° Grau",
-      pergunta: "Qual o valor de f(2) na função f(x) = 4x - 1?",
-      opcoes: ["7", "8", "9", "6", "5"],
-      correta: 0,
-      resolucao: "Basta substituir x por 2: f(2) = 4 × 2 - 1 = 8 - 1 = 7."
-    }
-  ];
-  
-  /* ==========================================================
-     2) ESTADO DA APLICAÇÃO
-     Variáveis que controlam "onde o usuário está" no quiz.
-     ========================================================== */
-  let questaoAtual = 0;
-  const respostasUsuario = new Array(quizData.length).fill(null);
-  
-  const PONTOS_INICIAIS = 0;
-  const PONTOS_POR_ACERTO = 10;
-  let pontosAtuais = PONTOS_INICIAIS;
-  // Controla quais questões já somaram pontos, pra não contar 2x
-  const pontosContados = new Array(quizData.length).fill(false);
-  
-  /* ==========================================================
-     3) REFERÊNCIAS AOS ELEMENTOS DO DOM
-     Pegamos tudo uma vez só, no início, por performance.
-     ========================================================== */
+
+(function () {
+  const aulaId = window.QUIZ_AULA_ID;
+
+  /* ===== REFERÊNCIAS AOS ELEMENTOS DO DOM ===== */
+  const estadoCarregando = document.getElementById('estado-carregando');
+  const estadoErro = document.getElementById('estado-erro');
+  const estadoErroTexto = document.getElementById('estado-erro-texto');
+
   const telaInicial = document.getElementById('tela-inicial');
   const telaQuiz = document.getElementById('tela-quiz');
   const btnComecar = document.getElementById('btn-comecar');
   const linkSairQuiz = document.getElementById('link-sair-quiz');
-  
+
+  const introTitulo = document.getElementById('intro-titulo');
+  const introDescricao = document.getElementById('intro-descricao');
+  const introTotalPerguntas = document.getElementById('intro-total-perguntas');
+  const introDificuldade = document.getElementById('intro-dificuldade');
+  const introPontosPossiveis = document.getElementById('intro-pontos-possiveis');
+  const introProgressoTexto = document.getElementById('intro-progresso-texto');
+
   const form = document.getElementById('quiz-form');
   const badgeQuestao = document.getElementById('badge-questao');
   const topicoEl = document.getElementById('topico');
   const progressoEl = document.getElementById('progresso');
+  const perguntaImagemEl = document.getElementById('pergunta-imagem');
   const perguntaEl = document.getElementById('pergunta');
   const optionsContainer = document.getElementById('options-container');
   const explicacaoEl = document.getElementById('explicacao-atual');
@@ -82,239 +47,380 @@
   const resultPercentEl = document.getElementById('result-percent');
   const reviewListEl = document.getElementById('review-list');
   const btnVoltarInicio = document.getElementById('btn-voltar-inicio');
-  const pontosEl = document.getElementById('pontos');
+
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImagem = document.getElementById('lightbox-imagem');
+  const lightboxFechar = document.getElementById('lightbox-fechar');
+
+  const PONTOS_POR_ACERTO = 10;
+
   
-  const LETRAS = ['A', 'B', 'C', 'D', 'E'];
-  
+
+  let quizData = null; // resposta da API (título, perguntas, progresso...)
+  let questaoAtual = 0;
+  let enviandoResposta = false;
+
+  function letraAlternativa(indice) {
+    return String.fromCharCode(65 + indice); // A, B, C, D, ...
+  }
+
   /* ==========================================================
-     4) RENDERIZAÇÃO
-     Toda vez que a questão muda, reconstruímos o conteúdo
-     dinâmico da tela a partir do quizData.
+     1) CARREGAMENTO DO QUIZ
      ========================================================== */
+  async function carregarQuiz() {
+    if (!aulaId) {
+      mostrarErro('Selecione uma aula na página de Videoaulas e clique em "Fazer Quiz" para começar.');
+      return;
+    }
+
+    try {
+      const resposta = await fetch(`/classes/api/aulas/${aulaId}/quiz`);
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        mostrarErro(dados.erro || 'Não foi possível carregar o quiz desta aula.');
+        return;
+      }
+
+      if (!Array.isArray(dados.perguntas) || dados.perguntas.length === 0) {
+        mostrarErro('Este quiz ainda não possui perguntas cadastradas.');
+        return;
+      }
+
+      quizData = dados;
+      montarTelaInicial();
+    } catch (erro) {
+      mostrarErro('Não foi possível se conectar ao servidor. Tente novamente.');
+    }
+  }
+
+  function mostrarErro(mensagem) {
+    estadoCarregando.classList.add('hidden');
+    estadoErroTexto.textContent = mensagem;
+    estadoErro.classList.remove('hidden');
+  }
+
+  function montarTelaInicial() {
+    estadoCarregando.classList.add('hidden');
+
+    introTitulo.textContent = quizData.titulo;
+    introDescricao.textContent = quizData.descricao && quizData.descricao.trim()
+      ? quizData.descricao
+      : 'Questões de múltipla escolha. Leia com atenção antes de responder — depois de respondida, a questão não pode ser alterada.';
+    introTotalPerguntas.textContent = quizData.perguntas.length;
+    introDificuldade.textContent = quizData.dificuldade || '-';
+    introPontosPossiveis.textContent = `+${quizData.perguntas.length * PONTOS_POR_ACERTO}`;
+
+    if (quizData.concluido) {
+      introProgressoTexto.textContent = `Você já concluiu este quiz! Pontuação: ${quizData.pontuacao} pontos.`;
+      introProgressoTexto.classList.remove('hidden');
+      btnComecar.textContent = 'Ver resultado';
+    } else if (quizData.progresso > 0) {
+      introProgressoTexto.textContent = `Você já respondeu ${quizData.progresso} de ${quizData.perguntas.length} questões. Continue de onde parou.`;
+      introProgressoTexto.classList.remove('hidden');
+      btnComecar.textContent = 'Continuar quiz';
+    } else {
+      introProgressoTexto.classList.add('hidden');
+      btnComecar.textContent = 'Começar Quiz';
+    }
+
+    telaInicial.classList.remove('hidden');
+  }
+
+  /* ==========================================================
+     2) RENDERIZAÇÃO DA QUESTÃO ATUAL
+     ========================================================== */
+  function indicePrimeiraNaoRespondida() {
+    const indice = quizData.perguntas.findIndex((p) => !p.respondida);
+    return indice === -1 ? quizData.perguntas.length - 1 : indice;
+  }
+
   function renderizarQuestao() {
-    const dados = quizData[questaoAtual];
-  
+    const pergunta = quizData.perguntas[questaoAtual];
+
     badgeQuestao.textContent = `Questão ${questaoAtual + 1}`;
-    topicoEl.textContent = dados.topico;
-    progressoEl.textContent = `${questaoAtual + 1} / ${quizData.length}`;
-    perguntaEl.textContent = dados.pergunta;
-  
-    // Limpa as opções antigas e cria as novas via JS (createElement)
+    topicoEl.textContent = quizData.categoria || quizData.titulo;
+    progressoEl.textContent = `${questaoAtual + 1} / ${quizData.perguntas.length}`;
+    perguntaEl.textContent = pergunta.enunciado;
+
+    if (pergunta.imagemUrl) {
+      perguntaImagemEl.src = pergunta.imagemUrl;
+      perguntaImagemEl.classList.remove('hidden');
+    } else {
+      perguntaImagemEl.classList.add('hidden');
+      perguntaImagemEl.removeAttribute('src');
+    }
+
     optionsContainer.innerHTML = '';
-  
-    dados.opcoes.forEach((textoOpcao, indice) => {
+
+    pergunta.alternativas.forEach((alternativa, indice) => {
       const label = document.createElement('label');
       label.className = 'option';
-  
+
       const input = document.createElement('input');
       input.type = 'radio';
       input.name = 'resposta';
-      input.value = indice;
-      if (respostasUsuario[questaoAtual] === indice) {
-        input.checked = true;
+      input.value = alternativa.id;
+
+      if (pergunta.respondida) {
+        input.disabled = true;
+        if (alternativa.id === pergunta.suaAlternativaId) input.checked = true;
+
+        if (alternativa.correta) {
+          label.classList.add('correct');
+        } else if (alternativa.id === pergunta.suaAlternativaId) {
+          label.classList.add('wrong');
+        }
+        label.classList.add('disabled');
       }
-  
+
       const letra = document.createElement('span');
       letra.className = 'option-letter';
-      letra.textContent = LETRAS[indice];
-  
+      letra.textContent = letraAlternativa(indice);
+
       label.appendChild(input);
       label.appendChild(letra);
-      label.appendChild(document.createTextNode(textoOpcao));
+
+      if (alternativa.imagemUrl) {
+        const img = document.createElement('img');
+        img.src = alternativa.imagemUrl;
+        img.className = 'option-image';
+        img.alt = `Alternativa ${letraAlternativa(indice)}`;
+        label.appendChild(img);
+      }
+
+      label.appendChild(document.createTextNode(alternativa.texto));
       optionsContainer.appendChild(label);
     });
-  
-    // Na última questão o botão de avançar vira "Finalizar"
-    btnProximo.textContent = questaoAtual === quizData.length - 1 ? 'Finalizar' : 'Próxima →';
-  
-    // Se a questão já foi respondida antes, reexibe o feedback visual e a resolução
-    if (respostasUsuario[questaoAtual] !== null) {
-      aplicarFeedbackVisual(respostasUsuario[questaoAtual]);
+
+    btnProximo.textContent = questaoAtual === quizData.perguntas.length - 1 ? 'Finalizar' : 'Próxima →';
+    btnProximo.disabled = !pergunta.respondida;
+
+    if (pergunta.respondida) {
+      exibirFeedback(pergunta);
     } else {
       explicacaoEl.classList.add('hidden');
     }
-  
+
     renderizarDots();
   }
-  
+
+  function exibirFeedback(pergunta) {
+    explicacaoStatusEl.textContent = pergunta.acertou ? 'Correto!' : 'Incorreto';
+    explicacaoTextoEl.textContent = pergunta.resolucao || '';
+    explicacaoEl.classList.remove('correct', 'wrong', 'hidden');
+    explicacaoEl.classList.add(pergunta.acertou ? 'correct' : 'wrong');
+  }
+
   function renderizarDots() {
     dotsContainer.innerHTML = '';
-    quizData.forEach((_, indice) => {
+    quizData.perguntas.forEach((pergunta, indice) => {
       const dot = document.createElement('span');
-      dot.className = 'dot' + (indice === questaoAtual ? ' active' : '');
-      dot.classList.toggle('done', indice < questaoAtual);
+      dot.className = 'dot';
+      if (indice === questaoAtual) dot.classList.add('active');
+      if (pergunta.respondida) dot.classList.add('done');
       dotsContainer.appendChild(dot);
     });
   }
-  
+
   /* ==========================================================
-     5) EVENTOS
+     3) ENVIO DA RESPOSTA (trava a questão no servidor)
      ========================================================== */
-  
-  // Guarda a resposta escolhida e marca a opção de verde (certa) ou
-  // vermelho (errada). Sem mostrar resolução e sem contar pontos aqui —
-  // isso só aparece no resultado final.
-  optionsContainer.addEventListener('change', (evento) => {
-    if (evento.target.name !== 'resposta') return;
-  
-    const indiceEscolhido = Number(evento.target.value);
-    respostasUsuario[questaoAtual] = indiceEscolhido;
-  
-    aplicarFeedbackVisual(indiceEscolhido);
-  });
-  
-  // Marca a opção escolhida em verde (certa) ou vermelho (errada)
-  // e mostra a resolução da questão logo abaixo, nos dois casos.
-  function aplicarFeedbackVisual(indiceEscolhido) {
-    const labels = optionsContainer.querySelectorAll('.option');
-    const dados = quizData[questaoAtual];
-    const indiceCorreto = dados.correta;
-    const acertou = indiceEscolhido === indiceCorreto;
-  
-    labels.forEach(label => label.classList.remove('correct', 'wrong'));
-  
-    if (acertou) {
-      labels[indiceEscolhido].classList.add('correct');
-    } else {
-      labels[indiceEscolhido].classList.add('wrong');
-      // Também destaca qual era a opção certa
-      labels[indiceCorreto].classList.add('correct');
+  optionsContainer.addEventListener('change', async (evento) => {
+    if (evento.target.name !== 'resposta' || enviandoResposta) return;
+
+    const pergunta = quizData.perguntas[questaoAtual];
+    if (pergunta.respondida) return; // já travada, não deveria nem chegar aqui
+
+    const alternativeId = Number(evento.target.value);
+
+    // Trava a UI imediatamente para não permitir clicar em outra alternativa
+    // enquanto a resposta ainda está sendo enviada ao servidor.
+    enviandoResposta = true;
+    optionsContainer.querySelectorAll('input[type="radio"]').forEach((input) => {
+      input.disabled = true;
+    });
+
+    try {
+      const resposta = await fetch(`/classes/api/quizzes/${quizData.id}/responder`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questionId: pergunta.id, alternativeId }),
+      });
+      const resultado = await resposta.json();
+
+      if (!resposta.ok) {
+        // 409 = a questão já tinha sido respondida antes (ex.: em outra aba).
+        alert(resultado.erro || 'Não foi possível registrar sua resposta.');
+        await recarregarProgresso();
+        return;
+      }
+
+      // Atualiza o estado local da pergunta com o resultado do servidor.
+      pergunta.respondida = true;
+      pergunta.suaAlternativaId = alternativeId;
+      pergunta.acertou = resultado.correta;
+      pergunta.resolucao = resultado.resolucao;
+      pergunta.alternativas.forEach((alt) => {
+        alt.correta = alt.id === resultado.alternativaCorretaId;
+      });
+
+      quizData.progresso = resultado.progresso;
+      quizData.pontuacao = resultado.pontuacao;
+      quizData.concluido = resultado.concluido;
+
+      renderizarQuestao();
+    } catch (erro) {
+      alert('Não foi possível se conectar ao servidor. Tente novamente.');
+      optionsContainer.querySelectorAll('input[type="radio"]').forEach((input) => {
+        input.disabled = false;
+      });
+    } finally {
+      enviandoResposta = false;
     }
-  
-    explicacaoStatusEl.textContent = acertou ? 'Correto!' : 'Incorreto';
-    explicacaoTextoEl.textContent = dados.resolucao;
-    explicacaoEl.classList.remove('correct', 'wrong');
-    explicacaoEl.classList.add(acertou ? 'correct' : 'wrong');
-    explicacaoEl.classList.remove('hidden');
+  });
+
+  // Caso a resposta não seja confirmada (ex.: erro de rede), busca de novo o
+  // estado real salvo no servidor para manter a tela sempre consistente com
+  // o banco de dados.
+  async function recarregarProgresso() {
+    try {
+      const resposta = await fetch(`/classes/api/aulas/${aulaId}/quiz`);
+      const dados = await resposta.json();
+      if (resposta.ok) {
+        quizData = dados;
+        renderizarQuestao();
+      }
+    } catch (erro) {
+      // Mantém o estado atual em tela se nem isso funcionar.
+    }
   }
-  
-  // Envio do formulário = avançar (ou finalizar, na última questão)
-  form.addEventListener('submit', (evento) => {
-    evento.preventDefault(); // impede o recarregamento padrão da página
-  
-    if (questaoAtual < quizData.length - 1) {
+
+  /* ==========================================================
+     4) NAVEGAÇÃO ENTRE QUESTÕES
+     ========================================================== */
+  btnProximo.addEventListener('click', () => {
+    if (btnProximo.disabled) return;
+
+    if (questaoAtual < quizData.perguntas.length - 1) {
       questaoAtual++;
       renderizarQuestao();
     } else {
       finalizarQuiz();
     }
   });
-  
+
   function finalizarQuiz() {
-    let acertos = 0;
-    quizData.forEach((dados, indice) => {
-      if (respostasUsuario[indice] === dados.correta) acertos++;
-    });
-  
-    // Pontuação só é calculada e exibida aqui, no final
-    pontosAtuais = acertos * PONTOS_POR_ACERTO;
-    pontosEl.textContent = pontosAtuais;
-  
+    const total = quizData.perguntas.length;
+    const acertos = quizData.perguntas.filter((p) => p.acertou).length;
+
     scoreEl.textContent = acertos;
-    totalEl.textContent = quizData.length;
-    resultTopicEl.textContent = quizData[0].topico;
-  
-    const percentual = Math.round((acertos / quizData.length) * 100);
+    totalEl.textContent = total;
+    resultTopicEl.textContent = quizData.titulo;
+
+    const percentual = Math.round((acertos / total) * 100);
     resultPercentEl.textContent = `${percentual}% — ${mensagemPorPercentual(percentual)}`;
-  
+
     renderizarRevisao();
-  
+
     form.classList.add('hidden');
     dotsContainer.classList.add('hidden');
     resultBox.classList.remove('hidden');
   }
-  
+
   function mensagemPorPercentual(percentual) {
     if (percentual === 100) return 'Excelente, gabaritou!';
     if (percentual >= 60) return 'Bom trabalho!';
     if (percentual >= 40) return 'Você está no caminho, continue treinando!';
     return 'Vamos revisar o conteúdo?';
   }
-  
-  // Monta os cards de revisão de cada questão, mostrando resposta do
-  // usuário, a resposta correta e a resolução — só aparece aqui, no final.
+
   function renderizarRevisao() {
     reviewListEl.innerHTML = '';
-  
-    quizData.forEach((dados, indice) => {
-      const respostaUsuario = respostasUsuario[indice];
-      const acertou = respostaUsuario === dados.correta;
-  
+
+    quizData.perguntas.forEach((pergunta, indice) => {
+      const acertou = !!pergunta.acertou;
+      const alternativaCorreta = pergunta.alternativas.find((a) => a.correta);
+      const suaAlternativa = pergunta.alternativas.find((a) => a.id === pergunta.suaAlternativaId);
+
       const card = document.createElement('div');
       card.className = 'review-card' + (acertou ? ' correct' : ' wrong');
-  
+
       const icon = document.createElement('span');
       icon.className = 'review-icon';
       icon.textContent = acertou ? '✓' : '✕';
-  
+
       const body = document.createElement('div');
       body.className = 'review-body';
-  
-      const pergunta = document.createElement('p');
-      pergunta.className = 'review-question';
-      pergunta.textContent = `${indice + 1}. ${dados.pergunta}`;
-      body.appendChild(pergunta);
-  
+
+      const perguntaTexto = document.createElement('p');
+      perguntaTexto.className = 'review-question';
+      perguntaTexto.textContent = `${indice + 1}. ${pergunta.enunciado}`;
+      body.appendChild(perguntaTexto);
+
       if (!acertou) {
         const suaResposta = document.createElement('p');
         suaResposta.className = 'review-sua-resposta';
-        suaResposta.textContent = respostaUsuario === null
-          ? 'Sua resposta: não respondida'
-          : `Sua resposta: ${LETRAS[respostaUsuario]}) ${dados.opcoes[respostaUsuario]}`;
+        suaResposta.textContent = suaAlternativa
+          ? `Sua resposta: ${suaAlternativa.texto}`
+          : 'Sua resposta: não respondida';
         body.appendChild(suaResposta);
       }
-  
-      const correta = document.createElement('p');
-      correta.className = 'review-correta';
-      correta.textContent = `Correta: ${LETRAS[dados.correta]}) ${dados.opcoes[dados.correta]}`;
-      body.appendChild(correta);
-  
-      const resolucao = document.createElement('p');
-      resolucao.className = 'review-resolucao';
-      resolucao.textContent = dados.resolucao;
-      body.appendChild(resolucao);
-  
+
+      if (alternativaCorreta) {
+        const correta = document.createElement('p');
+        correta.className = 'review-correta';
+        correta.textContent = `Correta: ${alternativaCorreta.texto}`;
+        body.appendChild(correta);
+      }
+
+      if (pergunta.resolucao) {
+        const resolucao = document.createElement('p');
+        resolucao.className = 'review-resolucao';
+        resolucao.textContent = pergunta.resolucao;
+        body.appendChild(resolucao);
+      }
+
       card.appendChild(icon);
       card.appendChild(body);
       reviewListEl.appendChild(card);
     });
   }
-  
+
   btnVoltarInicio.addEventListener('click', () => {
-    window.location.href = '/';
+    window.location.href = '/classes';
   });
-  
-  function reiniciarQuiz() {
-    questaoAtual = 0;
-    respostasUsuario.fill(null);
-    pontosContados.fill(false);
-    pontosAtuais = PONTOS_INICIAIS;
-    pontosEl.textContent = pontosAtuais;
+
+  /* ==========================================================
+     5) NAVEGAÇÃO ENTRE TELAS (inicial ↔ quiz)
+     ========================================================== */
+  btnComecar.addEventListener('click', () => {
+    telaInicial.classList.add('hidden');
+    telaQuiz.classList.remove('hidden');
+
     form.classList.remove('hidden');
     dotsContainer.classList.remove('hidden');
     resultBox.classList.add('hidden');
-    renderizarQuestao();
-  }
-  
-  /* ==========================================================
-     6) NAVEGAÇÃO ENTRE TELAS (inicial ↔ quiz)
-     ========================================================== */
-  btnComecar.addEventListener('click', () => {
-    // Garante que o quiz sempre comece do zero
-    reiniciarQuiz();
-  
-    telaInicial.classList.add('hidden');
-    telaQuiz.classList.remove('hidden');
+
+    if (quizData.concluido) {
+      questaoAtual = quizData.perguntas.length - 1;
+      renderizarQuestao();
+      finalizarQuiz();
+    } else {
+      questaoAtual = indicePrimeiraNaoRespondida();
+      renderizarQuestao();
+    }
   });
-  
+
   linkSairQuiz.addEventListener('click', (evento) => {
     evento.preventDefault();
     telaQuiz.classList.add('hidden');
     telaInicial.classList.remove('hidden');
+    montarTelaInicial();
   });
-  
+
   /* ==========================================================
-     7) INICIALIZAÇÃO
+     6) INICIALIZAÇÃO
      ========================================================== */
-  renderizarQuestao();
-  
+  carregarQuiz();
+})();

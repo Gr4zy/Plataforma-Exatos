@@ -10,6 +10,14 @@ QuizQuestion.init(
       primaryKey: true,
       autoIncrement: true,
     },
+    quizId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    questionId: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
     order: {
       type: DataTypes.INTEGER,
       allowNull: false,

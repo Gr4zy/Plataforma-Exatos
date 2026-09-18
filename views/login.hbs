@@ -48,6 +48,12 @@
                 </div>
                 {{/if}}
 
+                {{#if sucesso}}
+                <div class="alert-sucesso" style="background:#e9f7ef;color:#1e6b3c;border:1px solid #b9e3c6;border-radius:8px;padding:10px 14px;margin-top:14px;font-size:0.9rem;">
+                    {{sucesso}}
+                </div>
+                {{/if}}
+
                 <form action="/login" method="POST">
                     <label>E-mail</label>
 
@@ -62,6 +68,10 @@
                         <input type="password" id="senha" name="senha" required>
                         <i class="fa-regular fa-eye" id="mostrarSenha"></i>
                     </div>
+
+                    <p style="text-align:right; margin: -8px 0 4px;">
+                        <a href="/esqueci-senha" style="font-size:0.85rem;">Esqueci minha senha</a>
+                    </p>
 
                     <button type="submit">
                         Entrar

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redefinir senha - Plataforma Exatos</title>
+
+    {{> auth_head}}
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="left" onclick="window.location.href='/inicio'" style="cursor: pointer;">
+
+        <img src="/images/LOGO.png" class="logo">
+
+        <span class="bemvindo">
+            QUASE LÁ
+        </span>
+
+        <h1>
+            Crie uma<br>
+            nova senha<br>
+            para sua conta
+        </h1>
+
+        <p>
+            Escolha uma senha com pelo menos 6 caracteres.
+        </p>
+
+    </div>
+
+    <div class="right">
+
+        <div class="login-box">
+
+            <h2>Redefinir senha</h2>
+
+            {{#if tokenInvalido}}
+            <span>Este link não é mais válido</span>
+
+            <div class="alert-erro" style="background:#fdecea;color:#611a15;border:1px solid #f5c2c0;border-radius:8px;padding:10px 14px;margin-top:14px;font-size:0.9rem;">
+                Este link de redefinição de senha é inválido ou já expirou. Solicite um novo link.
+            </div>
+
+            <p style="text-align:center; margin-top:20px;">
+                <a href="/esqueci-senha">Solicitar novo link</a>
+            </p>
+            {{else}}
+            <span>Escolha a nova senha da sua conta</span>
+
+            {{#if erro}}
+            <div class="alert-erro" style="background:#fdecea;color:#611a15;border:1px solid #f5c2c0;border-radius:8px;padding:10px 14px;margin-top:14px;font-size:0.9rem;">
+                {{erro}}
+            </div>
+            {{/if}}
+
+            <form action="/redefinir-senha/{{token}}" method="POST">
+
+                <label>Nova senha</label>
+                <div class="input-box">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="senha" name="senha" minlength="6" maxlength="8" required>
+                    <i class="fa-regular fa-eye" id="mostrarSenha"></i>
+                </div>
+
+                <label>Confirmar nova senha</label>
+                <div class="input-box">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="confirmarSenha" name="confirmarSenha" minlength="6" maxlength="8" required>
+                </div>
+
+                <button type="submit">
+                    Redefinir senha
+                </button>
+
+            </form>
+
+            <p style="text-align:center; margin-top:20px;">
+                <a href="/login">Voltar para o login</a>
+            </p>
+            {{/if}}
+
+        </div>
+
+    </div>
+
+</div>
+
+{{#unless tokenInvalido}}
+{{> toggle_senha_script}}
+{{/unless}}
+
+</body>
+</html>

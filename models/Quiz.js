@@ -30,6 +30,12 @@ Quiz.init(
       allowNull: false,
       defaultValue: 0,
     },
+    // Declarado explicitamente (e não apenas via associação) para que o
+    // Sequelize não "perca" a coluna ao rodar sync({ alter: true }).
+    lessonId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     sequelize,

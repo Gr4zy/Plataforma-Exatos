@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esqueci minha senha - Plataforma Exatos</title>
+
+    {{> auth_head}}
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="left" onclick="window.location.href='/inicio'" style="cursor: pointer;">
+
+        <img src="/images/LOGO.png" class="logo">
+
+        <span class="bemvindo">
+            RECUPERAÇÃO DE SENHA
+        </span>
+
+        <h1>
+            Aconteceu com<br>
+            todo mundo.<br>
+            Vamos resolver.
+        </h1>
+
+        <p>
+            Informe o e-mail usado no cadastro e enviaremos um link
+            para você criar uma nova senha.
+        </p>
+
+    </div>
+
+    <div class="right">
+
+        <div class="login-box">
+
+            <h2>Esqueci minha senha</h2>
+
+            <span>Enviaremos um link de redefinição para o seu e-mail</span>
+
+            {{#if erro}}
+            <div class="alert-erro" style="background:#fdecea;color:#611a15;border:1px solid #f5c2c0;border-radius:8px;padding:10px 14px;margin-top:14px;font-size:0.9rem;">
+                {{erro}}
+            </div>
+            {{/if}}
+
+            {{#if sucesso}}
+            <div class="alert-sucesso" style="background:#e9f7ef;color:#1e6b3c;border:1px solid #b9e3c6;border-radius:8px;padding:10px 14px;margin-top:14px;font-size:0.9rem;">
+                {{sucesso}}
+            </div>
+            {{/if}}
+
+            {{#unless sucesso}}
+            <form action="/esqueci-senha" method="POST">
+                <label>E-mail</label>
+
+                <div class="input-box">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" name="email" required autofocus>
+                </div>
+
+                <button type="submit">
+                    Enviar link de redefinição
+                </button>
+            </form>
+            {{/unless}}
+
+            <p style="text-align:center; margin-top:20px;">
+                Lembrou a senha?
+                <a href="/login">Voltar para o login</a>
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

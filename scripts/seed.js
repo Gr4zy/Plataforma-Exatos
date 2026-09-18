@@ -1,4 +1,4 @@
-const { User, Lesson, Quiz, Question, QuizQuestion } = require('../models');
+const { User, Lesson, Quiz, Question, QuizQuestion, Alternative } = require('../models');
 const LessonStatus = require('../models/enums/LessonStatus');
 const UserProfile = require('../models/enums/UserProfile');
 
@@ -67,22 +67,25 @@ async function seed() {
 
     const pergunta1 = await Question.create({
       statement: 'Qual é a raiz da função f(x) = 2x - 6?',
-      alternative_1: 'x = -3',
-      alternative_2: 'x = 3',
-      alternative_3: 'x = 6',
-      correct: 'alternative_2',
       explanation: 'A raiz é o valor de x que torna f(x) = 0. Fazendo 2x - 6 = 0, temos 2x = 6, logo x = 3.',
     });
+    await Alternative.bulkCreate([
+      { questionId: pergunta1.id, text: 'x = -3', correct: false, order: 0 },
+      { questionId: pergunta1.id, text: 'x = 3', correct: true, order: 1 },
+      { questionId: pergunta1.id, text: 'x = 6', correct: false, order: 2 },
+      { questionId: pergunta1.id, text: 'x = -6', correct: false, order: 3 },
+    ]);
     await QuizQuestion.create({ quizId: quiz.id, questionId: pergunta1.id, order: 0 });
 
     const pergunta2 = await Question.create({
       statement: 'Qual é o coeficiente angular da função f(x) = 3x + 4?',
-      alternative_1: '4',
-      alternative_2: '3',
-      alternative_3: '-3',
-      correct: 'alternative_2',
       explanation: 'Numa função do 1º grau f(x) = ax + b, o coeficiente angular é o valor de a. Aqui a = 3.',
     });
+    await Alternative.bulkCreate([
+      { questionId: pergunta2.id, text: '4', correct: false, order: 0 },
+      { questionId: pergunta2.id, text: '3', correct: true, order: 1 },
+      { questionId: pergunta2.id, text: '-3', correct: false, order: 2 },
+    ]);
     await QuizQuestion.create({ quizId: quiz.id, questionId: pergunta2.id, order: 1 });
 
     console.log('Banco de dados semeado com sucesso!');
