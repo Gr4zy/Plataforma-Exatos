@@ -50,6 +50,17 @@
         color: #0b7cc7;
     }
 
+    .tema-titulo {
+        color: #0a4670;
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin: 1.5rem 0 0.75rem;
+    }
+
+    .tema-titulo:first-child {
+        margin-top: 0;
+    }
+
     .btn-excluir {
         color: #b3261e;
     }
@@ -70,10 +81,15 @@
     <form id="formAula" novalidate>
         <input type="hidden" id="aulaId" name="aulaId" value="">
         <div class="row g-4">
-            <div class="col-12">
+            <div class="col-md-8">
                 <label for="titulo" class="form-label">Título da aula *</label>
                 <input type="text" class="form-control" id="titulo" name="titulo"
                     placeholder="Ex: Função do 1º Grau (Introdução)" required>
+            </div>
+
+            <div class="col-md-4">
+                <label for="tema" class="form-label">Tema *</label>
+                <input type="text" class="form-control" id="tema" name="tema" placeholder="Ex: Álgebra" required>
             </div>
 
             <div class="col-12">
@@ -192,6 +208,7 @@
 
         const dados = {
             titulo: document.getElementById('titulo').value.trim(),
+            tema: document.getElementById('tema').value.trim(),
             descricao: document.getElementById('descricao').value.trim(),
             link: document.getElementById('link').value.trim(),
             materiais: coletarMateriais()
@@ -232,6 +249,7 @@
 
             aulaIdInput.value = aula.id;
             document.getElementById('titulo').value = aula.titulo || '';
+            document.getElementById('tema').value = aula.tema || '';
             document.getElementById('descricao').value = aula.descricao || '';
             document.getElementById('link').value = aula.link || '';
 
@@ -272,6 +290,16 @@
         }
     }
 
+    function agruparPorTema(aulas) {
+        const grupos = new Map();
+        aulas.forEach(aula => {
+            const tema = aula.tema || 'Sem tema';
+            if (!grupos.has(tema)) grupos.set(tema, []);
+            grupos.get(tema).push(aula);
+        });
+        return grupos;
+    }
+
     function renderizarLista(aulas) {
         if (!aulas.length) {
             listaAulas.innerHTML = '<p class="text-muted">Nenhuma aula cadastrada ainda.</p>';
@@ -279,31 +307,41 @@
         }
 
         listaAulas.innerHTML = '';
-        aulas.slice().reverse().forEach(aula => {
-            const materiais = aula.materiais || [];
-            const item = document.createElement('div');
-            item.className = 'card aula-row border-0 shadow-sm rounded-4 p-3';
-            item.innerHTML = `
-                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-                        <div>
-                            <h3 class="fs-6 mb-1 mt-1" style="color:#0a4670;">${aula.titulo}</h3>
-                            <p class="text-secondary small mb-0">${aula.descricao}</p>
-                            ${materiais.length ? `<p class="small text-muted mb-0 mt-1">${materiais.length} material(is) anexado(s)</p>` : ''}
+        const ordenadas = aulas.slice().reverse();
+        const grupos = agruparPorTema(ordenadas);
+
+        grupos.forEach((aulasDoTema, tema) => {
+            const cabecalho = document.createElement('h3');
+            cabecalho.className = 'tema-titulo';
+            cabecalho.textContent = tema;
+            listaAulas.appendChild(cabecalho);
+
+            aulasDoTema.forEach(aula => {
+                const materiais = aula.materiais || [];
+                const item = document.createElement('div');
+                item.className = 'card aula-row border-0 shadow-sm rounded-4 p-3';
+                item.innerHTML = `
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                            <div>
+                                <h3 class="fs-6 mb-1 mt-1" style="color:#0a4670;">${aula.titulo}</h3>
+                                <p class="text-secondary small mb-0">${aula.descricao}</p>
+                                ${materiais.length ? `<p class="small text-muted mb-0 mt-1">${materiais.length} material(is) anexado(s)</p>` : ''}
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <a href="${aula.link}" target="_blank" class="btn btn-sm btn-outline-custom d-flex align-items-center gap-1">
+                                    <span class="material-symbols-outlined fs-6">play_arrow</span> Vídeo
+                                </a>
+                                <button class="btn btn-sm btn-outline-custom d-flex align-items-center gap-1" onclick="editarAula(${aula.id})">
+                                    <span class="material-symbols-outlined fs-6">edit</span> Editar
+                                </button>
+                                <button class="btn btn-sm btn-excluir d-flex align-items-center gap-1" onclick="excluirAula(${aula.id})">
+                                    <span class="material-symbols-outlined fs-6">delete</span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <a href="${aula.link}" target="_blank" class="btn btn-sm btn-outline-custom d-flex align-items-center gap-1">
-                                <span class="material-symbols-outlined fs-6">play_arrow</span> Vídeo
-                            </a>
-                            <button class="btn btn-sm btn-outline-custom d-flex align-items-center gap-1" onclick="editarAula(${aula.id})">
-                                <span class="material-symbols-outlined fs-6">edit</span> Editar
-                            </button>
-                            <button class="btn btn-sm btn-excluir d-flex align-items-center gap-1" onclick="excluirAula(${aula.id})">
-                                <span class="material-symbols-outlined fs-6">delete</span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            listaAulas.appendChild(item);
+                    `;
+                listaAulas.appendChild(item);
+            });
         });
     }
 

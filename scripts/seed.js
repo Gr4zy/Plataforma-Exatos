@@ -32,21 +32,25 @@ async function seed() {
     const aulasSeed = [
       {
         title: 'Função do 1º Grau (Introdução)',
+        theme: 'Álgebra',
         description: 'Aprenda o conceito inicial de função afim, gráfico, coeficiente angular e linear.',
         video: 'https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ',
       },
       {
         title: 'Equação do 2º Grau e Bhaskara',
+        theme: 'Equações',
         description: 'Domine a fórmula de Bhaskara e aprenda a encontrar as raízes de uma equação quadrática.',
         video: 'https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ',
       },
       {
         title: 'Análise Combinatória: Fatorial',
+        theme: 'Análise Combinatória',
         description: 'Entenda os princípios de contagem, arranjo, combinação e agrupamentos matemáticos.',
         video: 'https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ',
       },
       {
         title: 'Geometria Plana: Áreas de Figuras',
+        theme: 'Geometria Plana',
         description: 'Como calcular a área de quadrados, retângulos, triângulos e círculos sem mistérios.',
         video: 'https://youtu.be/tfiHm1cbxe4?si=ehmHJJVkuFeoSNRQ',
       },

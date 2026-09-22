@@ -1,3 +1,26 @@
+<style>
+    .badge-tema {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: bold;
+        padding: 4px 10px;
+        border-radius: 6px;
+        background-color: #e1f0fe;
+        color: #0b7cc7;
+        width: fit-content;
+    }
+
+    .tema-secao-titulo {
+        color: #0a4670;
+        font-weight: 700;
+        margin: 2rem 0 1rem;
+    }
+
+    .tema-secao-titulo:first-child {
+        margin-top: 0;
+    }
+</style>
+
 <h1 class="main-title mb-4" id="page-title">Aulas de Matemática</h1>
 
 <div class="row row-cols-1 row-cols-md-2 g-4" id="cards-container">
@@ -55,6 +78,7 @@
             container.innerHTML = `
                 <div class="col-12">
                     <div class="card shadow-sm border-0 rounded-4 p-4 position-relative">
+                            <span class="badge-tema">${aula.tema || 'Sem tema'}</span>
                             <h3 class="card-title mt-3">${aula.titulo}</h3>
 
                             <p class="text-secondary card-desc">${aula.descricao}</p>
@@ -108,14 +132,22 @@
         }
     }
 
-    function renderizarAulas(aulas) {
-        aulasCarregadas = aulas;
-        container.innerHTML = '';
+    function agruparPorTema(aulas) {
+        const grupos = new Map();
         aulas.forEach(aula => {
-            const cardHtml = `
+            const tema = aula.tema || 'Sem tema';
+            if (!grupos.has(tema)) grupos.set(tema, []);
+            grupos.get(tema).push(aula);
+        });
+        return grupos;
+    }
+
+    function cardAulaHtml(aula) {
+        return `
                 <div class="col">
                     <div class="card h-100 shadow-sm border-0 rounded-4 p-4 position-relative d-flex flex-column justify-content-between">
                        <div>
+<span class="badge-tema mb-2">${aula.tema || 'Sem tema'}</span>
 <h3 class="card-title fs-4">${aula.titulo}</h3>
 
 <p class="text-secondary card-desc small">${aula.descricao}</p>
@@ -133,7 +165,23 @@
                     </div>
                 </div>
             `;
-            container.innerHTML += cardHtml;
+    }
+
+    function renderizarAulas(aulas) {
+        aulasCarregadas = aulas;
+        container.innerHTML = '';
+
+        if (!aulas.length) {
+            container.innerHTML = '<p class="text-muted">Nenhuma aula disponível ainda.</p>';
+            return;
+        }
+
+        const grupos = agruparPorTema(aulas);
+        grupos.forEach((aulasDoTema, tema) => {
+            container.innerHTML += `<h2 class="tema-secao-titulo col-12">${tema}</h2>`;
+            aulasDoTema.forEach(aula => {
+                container.innerHTML += cardAulaHtml(aula);
+            });
         });
     }
 </script>
