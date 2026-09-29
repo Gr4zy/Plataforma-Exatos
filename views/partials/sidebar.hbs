@@ -22,6 +22,18 @@
             Cadastrar Quiz
         </a>
         {{/if}}
+        {{#if (ehAdmin usuarioLogado.perfil)}}
+        <a href="/admin/usuarios" id="btn-admin-usuarios" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
+            <span class="material-symbols-outlined">manage_accounts</span>
+            Usuários
+        </a>
+        {{/if}}
+        {{#if usuarioLogado}}
+        <a href="/perfil" id="btn-perfil" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
+            <span class="material-symbols-outlined">account_circle</span>
+            Meu Perfil
+        </a>
+        {{/if}}
     </nav>
 
     {{#if usuarioLogado}}

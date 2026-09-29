@@ -9,7 +9,9 @@ var session = require('express-session');
 var indexRouter = require('./routes/index');
 var classesRouter = require('./routes/classes');
 var usersRouter = require('./routes/users');
-var adminRouter = require('./routes/admin');
+var adminRouter = require('./routes/Admin');
+var perfilRouter = require('./routes/perfil');
+var { User } = require('./models');
 
 var app = express();
 
@@ -31,6 +33,26 @@ app.use(session({
   cookie: { maxAge: 1000 * 60 * 60 * 8 }, // 8 horas
 }));
 
+// Mantém a sessão em sincronia com o banco: se o administrador mudar o
+// perfil de alguém (ex.: aluno -> bolsista) ou desativar a conta, isso vale
+// na próxima requisição, sem precisar sair e entrar de novo.
+app.use(async function (req, res, next) {
+  if (!req.session.usuario) return next();
+  try {
+    const atual = await User.findByPk(req.session.usuario.id, {
+      attributes: ['id', 'name', 'email', 'profile', 'excluido'],
+    });
+    if (!atual || atual.excluido) {
+      return req.session.destroy(() => res.redirect('/login'));
+    }
+    req.session.usuario.nome = atual.name;
+    req.session.usuario.perfil = atual.profile;
+    next();
+  } catch (erro) {
+    next(erro);
+  }
+});
+
 // Deixa o usuário logado (sem a senha) disponível em todas as views
 app.use(function (req, res, next) {
   res.locals.usuarioLogado = req.session.usuario || null;
@@ -40,6 +62,7 @@ app.use(function (req, res, next) {
 app.use('/', indexRouter);
 app.use('/admin', adminRouter);
 app.use('/classes', classesRouter);
+app.use('/perfil', perfilRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
@@ -67,6 +90,12 @@ var db = require('./models');
 db.sequelize.sync().then(async () => {
   console.log('Banco de dados sincronizado!');
   try {
+    // Adiciona colunas novas (ex.: imagens) em bancos antigos sem apagar dados.
+    await require('./scripts/ensureSchema')();
+  } catch (erro) {
+    console.error('Falha ao atualizar o esquema do banco de dados:', erro.message);
+  }
+  try {
     const seed = require('./scripts/seed');
     await seed();
   } catch (erro) {
@@ -80,6 +109,10 @@ const hbs = require('hbs');
 hbs.registerPartials(__dirname + '/views/partials');
 
 const UserProfile = require('./models/enums/UserProfile');
+
+hbs.registerHelper('ehAdmin', function (perfil) {
+  return perfil === UserProfile.ADMIN;
+});
 
 hbs.registerHelper('ehGestor', function (perfil) {
   return perfil === UserProfile.SCHOLAR || perfil === UserProfile.ADMIN;

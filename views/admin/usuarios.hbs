@@ -1,0 +1,252 @@
+<style>
+    .form-label { color: #0a4670; font-weight: 600; }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #538cb4;
+        box-shadow: 0 0 0 0.2rem rgba(83, 140, 180, 0.25);
+    }
+
+    .stat-card {
+        background: #fff;
+        border-radius: 14px;
+        border: 1px solid #dce8f0;
+        padding: 1rem 1.25rem;
+        height: 100%;
+    }
+
+    .stat-valor { color: #0a4670; font-size: 1.7rem; font-weight: 700; line-height: 1.1; }
+
+    .stat-rotulo {
+        color: #5f73ac;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .badge-ativo {
+        background-color: #e3f6ea;
+        color: #1b7a3d;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 6px;
+    }
+
+    .badge-inativo {
+        background-color: #fdeceb;
+        color: #b3261e;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 6px;
+    }
+
+    .linha-inativa td { opacity: 0.6; }
+    .linha-inativa td:last-child { opacity: 1; }
+
+    .btn-acao-perigo { color: #b3261e; border: 1px solid #f1c3c0; font-weight: 500; }
+    .btn-acao-perigo:hover { background-color: #fdeceb; color: #b3261e; }
+</style>
+
+<h1 class="main-title mb-1">Gerenciar Usuários</h1>
+<p class="text-muted mb-4">Promova alunos a bolsistas, defina administradores e ative ou desative contas.</p>
+
+<div id="alerta-area"></div>
+
+<div class="row g-3 mb-4" id="resumo">
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-rotulo">Total</div><div class="stat-valor" id="resumo-total">-</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-rotulo">Alunos</div><div class="stat-valor" id="resumo-alunos">-</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-rotulo">Bolsistas</div><div class="stat-valor" id="resumo-bolsistas">-</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-rotulo">Administradores</div><div class="stat-valor" id="resumo-admins">-</div></div></div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-3 p-md-4">
+        <div class="row g-2 mb-3">
+            <div class="col-12 col-md-8">
+                <input type="search" id="busca" class="form-control" placeholder="Buscar por nome ou e-mail">
+            </div>
+            <div class="col-12 col-md-4">
+                <select id="filtro-perfil" class="form-select">
+                    <option value="">Todos os perfis</option>
+                    <option value="0">Alunos</option>
+                    <option value="1">Bolsistas</option>
+                    <option value="2">Administradores</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th class="text-center">Pontos</th>
+                        <th style="min-width: 160px;">Perfil</th>
+                        <th class="text-center">Situação</th>
+                        <th class="text-end">Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-usuarios">
+                    <tr><td colspan="6" class="text-center text-muted py-4">Carregando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const EU_ID = Number('{{usuarioLogado.id}}');
+    const PERFIL_CHAVE = { 0: 'aluno', 1: 'bolsista', 2: 'administrador' };
+
+    const tabela = document.getElementById('tabela-usuarios');
+    const buscaInput = document.getElementById('busca');
+    const filtroPerfil = document.getElementById('filtro-perfil');
+    const alertaArea = document.getElementById('alerta-area');
+
+    let usuarios = [];
+
+    function esc(texto) {
+        return String(texto == null ? '' : texto)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function mostrarAlerta(mensagem, tipo) {
+        alertaArea.innerHTML = '<div class="alert alert-' + tipo + ' alert-dismissible fade show" role="alert">' +
+            esc(mensagem) +
+            '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button></div>';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function requisitar(url, opcoes) {
+        const resposta = await fetch(url, opcoes);
+        let corpo = null;
+        try { corpo = await resposta.json(); } catch (e) { /* sem corpo */ }
+        if (!resposta.ok) {
+            throw new Error((corpo && corpo.erro) || 'Não foi possível concluir a operação.');
+        }
+        return corpo;
+    }
+
+    async function carregar() {
+        try {
+            usuarios = await requisitar('/admin/usuarios/api/usuarios');
+            renderizar();
+        } catch (erro) {
+            tabela.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">' + esc(erro.message) + '</td></tr>';
+        }
+    }
+
+    function atualizarResumo() {
+        document.getElementById('resumo-total').textContent = usuarios.length;
+        document.getElementById('resumo-alunos').textContent = usuarios.filter(u => u.perfil === 0).length;
+        document.getElementById('resumo-bolsistas').textContent = usuarios.filter(u => u.perfil === 1).length;
+        document.getElementById('resumo-admins').textContent = usuarios.filter(u => u.perfil === 2).length;
+    }
+
+    function renderizar() {
+        atualizarResumo();
+
+        const termo = buscaInput.value.trim().toLowerCase();
+        const perfilFiltro = filtroPerfil.value;
+
+        const lista = usuarios.filter(u => {
+            const bateBusca = !termo || u.nome.toLowerCase().includes(termo) || u.email.toLowerCase().includes(termo);
+            const batePerfil = perfilFiltro === '' || String(u.perfil) === perfilFiltro;
+            return bateBusca && batePerfil;
+        });
+
+        if (!lista.length) {
+            tabela.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Nenhum usuário encontrado.</td></tr>';
+            return;
+        }
+
+        tabela.innerHTML = lista.map(u => {
+            const ehEle = u.id === EU_ID;
+            const opcoes = [[0, 'Aluno'], [1, 'Bolsista'], [2, 'Administrador']].map(([valor, rotulo]) =>
+                '<option value="' + valor + '"' + (u.perfil === valor ? ' selected' : '') + '>' + rotulo + '</option>'
+            ).join('');
+
+            const botaoAcao = ehEle
+                ? '<span class="text-muted small">Você</span>'
+                : (u.ativo
+                    ? '<button type="button" class="btn btn-sm btn-acao-perigo btn-alternar" data-id="' + u.id + '">Desativar</button>'
+                    : '<button type="button" class="btn btn-sm btn-outline-custom btn-alternar" data-id="' + u.id + '">Reativar</button>');
+
+            return '<tr class="' + (u.ativo ? '' : 'linha-inativa') + '">' +
+                '<td class="fw-semibold">' + esc(u.nome) + '</td>' +
+                '<td class="text-break">' + esc(u.email) + '</td>' +
+                '<td class="text-center">' + esc(u.pontos) + '</td>' +
+                '<td><select class="form-select form-select-sm select-perfil" data-id="' + u.id + '"' + (ehEle ? ' disabled' : '') + '>' + opcoes + '</select></td>' +
+                '<td class="text-center">' + (u.ativo ? '<span class="badge-ativo">Ativo</span>' : '<span class="badge-inativo">Desativado</span>') + '</td>' +
+                '<td class="text-end">' + botaoAcao + '</td>' +
+                '</tr>';
+        }).join('');
+    }
+
+    async function atualizarUsuario(id, corpo) {
+        const atualizado = await requisitar('/admin/usuarios/api/usuarios/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(corpo)
+        });
+        const indice = usuarios.findIndex(u => u.id === id);
+        if (indice !== -1) usuarios[indice] = atualizado;
+        renderizar();
+        return atualizado;
+    }
+
+    tabela.addEventListener('change', async (evento) => {
+        const select = evento.target.closest('.select-perfil');
+        if (!select) return;
+
+        const id = Number(select.dataset.id);
+        const usuario = usuarios.find(u => u.id === id);
+        const novoPerfil = Number(select.value);
+        if (!usuario || usuario.perfil === novoPerfil) return;
+
+        if (novoPerfil === 2 && !confirm('Tornar ' + usuario.nome + ' administrador? Ele poderá gerenciar todos os usuários.')) {
+            select.value = usuario.perfil;
+            return;
+        }
+
+        try {
+            await atualizarUsuario(id, { perfil: PERFIL_CHAVE[novoPerfil] });
+            mostrarAlerta(usuario.nome + ' agora é ' + PERFIL_CHAVE[novoPerfil] + '.', 'success');
+        } catch (erro) {
+            select.value = usuario.perfil;
+            mostrarAlerta(erro.message, 'danger');
+        }
+    });
+
+    tabela.addEventListener('click', async (evento) => {
+        const botao = evento.target.closest('.btn-alternar');
+        if (!botao) return;
+
+        const id = Number(botao.dataset.id);
+        const usuario = usuarios.find(u => u.id === id);
+        if (!usuario) return;
+
+        const desativar = usuario.ativo;
+        if (desativar && !confirm('Desativar a conta de ' + usuario.nome + '? Ela não poderá mais entrar na plataforma.')) return;
+
+        try {
+            await atualizarUsuario(id, { ativo: !desativar });
+            mostrarAlerta('Conta de ' + usuario.nome + (desativar ? ' desativada.' : ' reativada.'), 'success');
+        } catch (erro) {
+            mostrarAlerta(erro.message, 'danger');
+        }
+    });
+
+    buscaInput.addEventListener('input', renderizar);
+    filtroPerfil.addEventListener('change', renderizar);
+
+    carregar();
+</script>

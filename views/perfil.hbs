@@ -1,0 +1,147 @@
+<style>
+    .perfil-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background-color: #e1f0fe;
+        color: #0b7cc7;
+        font-size: 2rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .stat-card {
+        background: #fff;
+        border-radius: 14px;
+        border: 1px solid #dce8f0;
+        padding: 1.25rem;
+        height: 100%;
+    }
+
+    .stat-valor {
+        color: #0a4670;
+        font-size: 1.9rem;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .stat-rotulo {
+        color: #5f73ac;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .badge-status-ok {
+        background-color: #e3f6ea;
+        color: #1b7a3d;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 6px;
+    }
+
+    .badge-status-andamento {
+        background-color: #fff4dc;
+        color: #9a6700;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 6px;
+    }
+</style>
+
+<h1 class="main-title mb-4">Meu Perfil</h1>
+
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4 d-flex align-items-center gap-3 flex-wrap">
+        <div class="perfil-avatar" id="perfil-avatar">{{perfilNome}}</div>
+        <div class="flex-grow-1" style="min-width: 0;">
+            <h2 class="h4 card-title mb-1 text-break">{{perfilNome}}</h2>
+            <div class="text-muted text-break">{{perfilEmail}}</div>
+            <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
+                <span class="custom-badge">{{perfilRotulo}}</span>
+                {{#if membroDesde}}
+                <span class="text-muted small">Membro desde {{membroDesde}}</span>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+        <div class="stat-card">
+            <div class="stat-rotulo mb-1">Pontuação</div>
+            <div class="stat-valor">{{pontos}} <span class="fs-6 text-muted fw-normal">pts</span></div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="stat-card">
+            <div class="stat-rotulo mb-1">Posição no ranking</div>
+            <div class="stat-valor">{{posicao}}º <span class="fs-6 text-muted fw-normal">de {{totalUsuarios}}</span></div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="stat-card">
+            <div class="stat-rotulo mb-1">Quizzes concluídos</div>
+            <div class="stat-valor">{{quizzesConcluidos}}</div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-4">
+        <h2 class="h5 card-title mb-3">Meus quizzes</h2>
+
+        {{#if temHistorico}}
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Quiz</th>
+                        <th>Categoria</th>
+                        <th class="text-center">Nota</th>
+                        <th class="text-center">Situação</th>
+                        <th>Última atividade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each historico}}
+                    <tr>
+                        <td class="fw-semibold">{{titulo}}</td>
+                        <td>{{categoria}}</td>
+                        <td class="text-center">{{nota}} pts</td>
+                        <td class="text-center">
+                            {{#if concluido}}
+                            <span class="badge-status-ok">Concluído</span>
+                            {{else}}
+                            <span class="badge-status-andamento">Em andamento ({{respondidas}} respondidas)</span>
+                            {{/if}}
+                        </td>
+                        <td>{{data}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+        {{else}}
+        <p class="text-muted mb-3">Você ainda não fez nenhum quiz. Assista a uma videoaula e responda o quiz para ganhar pontos!</p>
+        <a href="/" class="btn btn-primary">Ver videoaulas</a>
+        {{/if}}
+    </div>
+</div>
+
+<script>
+    // Avatar com as iniciais do nome
+    (function () {
+        const el = document.getElementById('perfil-avatar');
+        const partes = el.textContent.trim().split(/\s+/).filter(Boolean);
+        const iniciais = (partes[0] ? partes[0][0] : '?') + (partes.length > 1 ? partes[partes.length - 1][0] : '');
+        el.textContent = iniciais.toUpperCase();
+    })();
+</script>

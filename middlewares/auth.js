@@ -49,4 +49,18 @@ function exigirGestorPagina(req, res, next) {
   next();
 }
 
-module.exports = { exigirLogin, exigirGestor, exigirGestorPagina, exigirAdmin };
+function exigirAdminPagina(req, res, next) {
+  const usuario = req.session.usuario;
+  if (!usuario) {
+    return res.redirect('/login');
+  }
+  if (usuario.perfil !== UserProfile.ADMIN) {
+    return res.status(403).render('error', {
+      message: 'Acesso restrito a administradores.',
+      error: {},
+    });
+  }
+  next();
+}
+
+module.exports = { exigirLogin, exigirGestor, exigirGestorPagina, exigirAdmin, exigirAdminPagina };

@@ -13,7 +13,7 @@ const {
 } = require('../models');
 const LessonStatus = require('../models/enums/LessonStatus');
 const UserProfile = require('../models/enums/UserProfile');
-const { exigirGestor, exigirGestorPagina, exigirAdmin } = require('../middlewares/auth');
+const { exigirGestor, exigirGestorPagina, exigirAdmin, exigirAdminPagina } = require('../middlewares/auth');
 const { lessonToAula, quizToJSON, nivelToLevel, perguntaToQuestionAttrs, alternativasToAttrs } = require('./mappers');
 
 /* =========================================================================
@@ -203,6 +203,13 @@ router.get('/quizzes/api/quizzes/:id', exigirGestor, async function (req, res, n
 // era uma limitação do esquema anterior, com colunas alternative_1/2/3).
 const MAX_ALTERNATIVAS = 10;
 
+// A imagem (do enunciado ou da alternativa) é guardada como URL, então só
+// aceitamos endereços http(s).
+function urlImagemInvalida(url) {
+  if (!url || String(url).trim() === '') return false;
+  return !/^https?:\/\/\S+$/i.test(String(url).trim());
+}
+
 function validarPerguntas(perguntas) {
   if (!Array.isArray(perguntas) || perguntas.length === 0) {
     return 'Informe um título e pelo menos uma pergunta.';
@@ -214,6 +221,12 @@ function validarPerguntas(perguntas) {
 
     if (!pergunta.enunciado || pergunta.enunciado.trim() === '') {
       return 'Toda pergunta precisa de um enunciado.';
+    }
+    if (urlImagemInvalida(pergunta.imagemUrl)) {
+      return 'A URL da imagem do enunciado deve começar com http:// ou https://.';
+    }
+    if (alternativasValidas.some((a) => urlImagemInvalida(a.imagemUrl))) {
+      return 'A URL da imagem de cada alternativa deve começar com http:// ou https://.';
     }
     if (alternativasValidas.length < 2) {
       return 'Cada pergunta precisa de pelo menos 2 alternativas.';
@@ -356,6 +369,10 @@ const PERFIS_VALIDOS = {
   administrador: UserProfile.ADMIN,
 };
 
+router.get('/usuarios', exigirAdminPagina, function (req, res) {
+  res.render('admin/usuarios', { title: 'Gerenciar Usuários' });
+});
+
 router.get('/usuarios/api/usuarios', exigirAdmin, async function (req, res, next) {
   try {
     const usuarios = await User.findAll({ order: [['name', 'ASC']] });
@@ -382,9 +399,23 @@ router.put('/usuarios/api/usuarios/:id', exigirAdmin, async function (req, res, 
     }
 
     const { nome, perfil, ativo } = req.body;
+
+    if (perfil && PERFIS_VALIDOS[perfil] === undefined) {
+      return res.status(400).json({ erro: 'Perfil inválido.' });
+    }
+
+    // Evita que o administrador se tranque para fora do sistema.
+    const ehEle = Number(usuario.id) === Number(req.session.usuario.id);
+    if (ehEle && perfil && PERFIS_VALIDOS[perfil] !== UserProfile.ADMIN) {
+      return res.status(400).json({ erro: 'Você não pode remover o seu próprio perfil de administrador.' });
+    }
+    if (ehEle && ativo === false) {
+      return res.status(400).json({ erro: 'Você não pode desativar a sua própria conta.' });
+    }
+
     const dados = {};
     if (nome) dados.name = nome;
-    if (perfil && PERFIS_VALIDOS[perfil] !== undefined) dados.profile = PERFIS_VALIDOS[perfil];
+    if (perfil) dados.profile = PERFIS_VALIDOS[perfil];
     if (typeof ativo === 'boolean') dados.excluido = !ativo;
 
     await usuario.update(dados);
