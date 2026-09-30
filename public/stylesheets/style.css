@@ -234,3 +234,98 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
+
+/* Rodapé da Plataforma Exatos - usa as mesmas cores do menu lateral
+   (#0b7cc7 / #08619d) e os cantos arredondados dos cards. */
+.rodape {
+    background-color: #0b7cc7;
+    color: #ffffff;
+    border-radius: 1rem;
+    padding: 1.75rem 1.75rem 1.25rem;
+    margin-top: 3rem;
+}
+
+.rodape-topo {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
+.rodape-marca {
+    max-width: 420px;
+}
+
+.rodape-logo {
+    max-width: 140px;
+    margin-bottom: 0.75rem;
+}
+
+.rodape-descricao {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+.rodape-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.rodape-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    opacity: 0.85;
+    transition: all 0.2s ease;
+}
+
+.rodape-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    opacity: 1;
+}
+
+.rodape-divisor {
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    margin: 1.25rem 0 1rem;
+    opacity: 1;
+}
+
+.rodape-base {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    opacity: 0.85;
+}
+
+@media (max-width: 575.98px) {
+    .rodape {
+        padding: 1.25rem 1rem 1rem;
+        margin-top: 2rem;
+    }
+
+    .rodape-base {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .rodape-topo {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .rodape-links {
+        justify-content: center;
+    }
+}

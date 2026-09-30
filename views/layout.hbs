@@ -15,8 +15,12 @@
         <div class="row">
             {{> sidebar}}
 
-            <main class="col-10 col-md-12 col-lg-10 p-4 p-md-5 mx-auto">
-                {{{body}}}
+            <main class="col-10 col-md-12 col-lg-10 p-4 p-md-5 mx-auto d-flex flex-column">
+                <div class="flex-grow-1">
+                    {{{body}}}
+                </div>
+
+                {{> footer}}
             </main>
         </div>
     </div>

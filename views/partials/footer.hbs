@@ -1,0 +1,36 @@
+<footer class="rodape" id="rodape">
+    <div class="rodape-topo">
+        <div class="rodape-marca">
+            <img src="/images/LOGO.png" alt="Plataforma Exatos" class="rodape-logo">
+            <p class="rodape-descricao">
+                Videoaulas, materiais e quizzes gratuitos para a sua preparação
+                para o ENEM e para o Exame de Seleção do IFRN.
+            </p>
+        </div>
+
+        <nav class="rodape-links" aria-label="Links do rodapé">
+            <a href="/" class="rodape-link">
+                <span class="material-symbols-outlined">view_cozy</span>
+                Início
+            </a>
+            <a href="/classes" class="rodape-link">
+                <span class="material-symbols-outlined">play_arrow</span>
+                Videoaulas
+            </a>
+        </nav>
+    </div>
+
+    <hr class="rodape-divisor">
+
+    <div class="rodape-base">
+        <span>&copy; <span id="rodape-ano"></span> Plataforma Exatos. Todos os direitos reservados.</span>
+        <span>Projeto acadêmico &middot; IFRN &ndash; Campus Santa Cruz</span>
+    </div>
+</footer>
+
+<script>
+    (function () {
+        var ano = document.getElementById('rodape-ano');
+        if (ano) ano.textContent = new Date().getFullYear();
+    })();
+</script>
