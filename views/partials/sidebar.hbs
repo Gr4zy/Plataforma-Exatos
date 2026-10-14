@@ -1,6 +1,6 @@
 <aside class="col-lg-2 bg-custom-sidebar text-white min-vh-100 p-3 d-none d-lg-flex flex-column position-sticky top-0 h-100">
     <div class="logo-area text-center py-3 mb-4">
-        <img src="/images/LOGO.png" alt="Plataforma Exatos" class="logo-img img-fluid">
+        <img src="images/LOGO.png" alt="Plataforma Exatos" class="logo-img img-fluid">
     </div>
 
     <nav class="nav flex-column gap-2">
@@ -8,28 +8,28 @@
             <span class="material-symbols-outlined">view_cozy</span>
             Início
         </a>
-        <a href="/classes" id="btn-videoaulas" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
+        <a href="classes" id="btn-videoaulas" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
             <span class="material-symbols-outlined">play_arrow</span>
             Videoaulas
         </a>
         {{#if (ehGestor usuarioLogado.perfil)}}
-        <a href="/admin/aulas" id="btn-admin-aulas" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
+        <a href="admin/aulas" id="btn-admin-aulas" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
             <span class="material-symbols-outlined">add_box</span>
             Cadastrar Aula
         </a>
-        <a href="/admin/quizzes" id="btn-admin-quizzes" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
+        <a href="admin/quizzes" id="btn-admin-quizzes" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
             <span class="material-symbols-outlined">quiz</span>
             Cadastrar Quiz
         </a>
         {{/if}}
         {{#if (ehAdmin usuarioLogado.perfil)}}
-        <a href="/admin/usuarios" id="btn-admin-usuarios" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
+        <a href="admin/usuarios" id="btn-admin-usuarios" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
             <span class="material-symbols-outlined">manage_accounts</span>
             Usuários
         </a>
         {{/if}}
         {{#if usuarioLogado}}
-        <a href="/perfil" id="btn-perfil" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
+        <a href="perfil" id="btn-perfil" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
             <span class="material-symbols-outlined">account_circle</span>
             Meu Perfil
         </a>
@@ -41,7 +41,7 @@
         <div class="px-2 mb-2 text-white text-opacity-75 small text-truncate" title="{{usuarioLogado.nome}}">
             {{usuarioLogado.nome}}
         </div>
-        <a href="/logout" id="btn-sair" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
+        <a href="logout" id="btn-sair" class="nav-link menu-item text-white rounded-3 d-flex align-items-center gap-2 p-2">
             <span class="material-symbols-outlined">logout</span>
             Sair
         </a>

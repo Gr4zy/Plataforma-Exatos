@@ -13,9 +13,9 @@
 
 <div class="container">
 
-    <div class="left" onclick="window.location.href='/inicio'" style="cursor: pointer;">
+    <div class="left" onclick="window.location.href='inicio'" style="cursor: pointer;">
 
-        <img src="/images/LOGO.png" class="logo">
+        <img src="images/LOGO.png" class="logo">
 
         <span class="bemvindo">
             RECUPERAÇÃO DE SENHA
@@ -55,7 +55,7 @@
             {{/if}}
 
             {{#unless sucesso}}
-            <form action="/esqueci-senha" method="POST">
+            <form action="esqueci-senha" method="POST">
                 <label>E-mail</label>
 
                 <div class="input-box">
@@ -71,7 +71,7 @@
 
             <p style="text-align:center; margin-top:20px;">
                 Lembrou a senha?
-                <a href="/login">Voltar para o login</a>
+                <a href="login">Voltar para o login</a>
             </p>
 
         </div>

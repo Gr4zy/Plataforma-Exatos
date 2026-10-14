@@ -13,9 +13,9 @@
 
 <div class="container">
 
-    <div class="left" onclick="window.location.href='/inicio'" style="cursor: pointer;">
+    <div class="left" onclick="window.location.href='inicio'" style="cursor: pointer;">
 
-        <img src="/images/LOGO.png" class="logo">
+        <img src="images/LOGO.png" class="logo">
 
         <span class="bemvindo">
             QUASE LÁ
@@ -47,7 +47,7 @@
             </div>
 
             <p style="text-align:center; margin-top:20px;">
-                <a href="/esqueci-senha">Solicitar novo link</a>
+                <a href="esqueci-senha">Solicitar novo link</a>
             </p>
             {{else}}
             <span>Escolha a nova senha da sua conta</span>
@@ -58,7 +58,7 @@
             </div>
             {{/if}}
 
-            <form action="/redefinir-senha/{{token}}" method="POST">
+            <form action="redefinir-senha/{{token}}" method="POST">
 
                 <label>Nova senha</label>
                 <div class="input-box">
@@ -80,7 +80,7 @@
             </form>
 
             <p style="text-align:center; margin-top:20px;">
-                <a href="/login">Voltar para o login</a>
+                <a href="login">Voltar para o login</a>
             </p>
             {{/if}}
 

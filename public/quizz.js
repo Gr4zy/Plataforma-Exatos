@@ -388,7 +388,7 @@
   }
 
   btnVoltarInicio.addEventListener('click', () => {
-    window.location.href = '/classes';
+    window.location.href = 'classes';
   });
 
   /* ==========================================================

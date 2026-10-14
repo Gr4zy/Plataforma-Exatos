@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/quizz.css">
+<link rel="stylesheet" href="quizz.css">
 
 <div class="quiz-page">
 
@@ -10,12 +10,12 @@
   <!-- ===================== ESTADO: ERRO / SEM QUIZ ===================== -->
   <div id="estado-erro" class="estado-info hidden">
     <p class="mb-3" id="estado-erro-texto">Não foi possível carregar o quiz.</p>
-    <a href="/classes" class="nav-btn primary">← Voltar para as aulas</a>
+    <a href="classes" class="nav-btn primary">← Voltar para as aulas</a>
   </div>
 
   <!-- ===================== TELA 1: APRESENTAÇÃO DO QUIZ ===================== -->
   <section id="tela-inicial" class="screen hidden">
-    <a href="/classes" class="back-link">← Voltar</a>
+    <a href="classes" class="back-link">← Voltar</a>
 
     <div class="intro-card">
       <div class="intro-icon">
@@ -106,4 +106,4 @@
   window.QUIZ_AULA_ID = new URLSearchParams(window.location.search).get('aulaId') || '';
 </script>
 
-<script src="/quizz.js"></script>
+<script src="quizz.js"></script>
