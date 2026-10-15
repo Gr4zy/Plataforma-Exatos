@@ -24,7 +24,7 @@ router.get('/inicio', function (req, res, next) {
 
 /* GET tela de login */
 router.get('/login', function (req, res, next) {
-  if (req.session.usuario) return res.redirect('/');
+  if (req.session.usuario) return res.redirect('..');
   res.render('login', { layout: false });
 });
 
@@ -64,7 +64,7 @@ router.post('/login', async function (req, res, next) {
       perfil: usuario.profile,
     };
 
-    res.redirect('/');
+    res.redirect('..');
   } catch (erro) {
     next(erro);
   }
@@ -73,13 +73,13 @@ router.post('/login', async function (req, res, next) {
 /* GET logout - RF01 */
 router.get('/logout', function (req, res) {
   req.session.destroy(() => {
-    res.redirect('/login');
+    res.redirect('login');
   });
 });
 
 /* GET tela "esqueci minha senha" */
 router.get('/esqueci-senha', function (req, res) {
-  if (req.session.usuario) return res.redirect('/');
+  if (req.session.usuario) return res.redirect('');
   res.render('esqueci-senha', { layout: false });
 });
 
@@ -194,7 +194,7 @@ router.post('/redefinir-senha/:token', async function (req, res, next) {
 
 /* GET tela de cadastro */
 router.get('/cadastro', function (req, res, next) {
-  if (req.session.usuario) return res.redirect('/');
+  if (req.session.usuario) return res.redirect('');
   res.render('cadastro', { layout: false });
 });
 
@@ -232,7 +232,7 @@ router.post('/cadastro', async function (req, res, next) {
       profile: UserProfile.STUDENT,
     });
 
-    res.redirect('/login');
+    res.redirect('login');
   } catch (erro) {
     // Erros de validação do Sequelize (ex.: RN02 - senha com no mínimo 6 caracteres)
     if (erro.name === 'SequelizeValidationError' || erro.name === 'SequelizeUniqueConstraintError') {

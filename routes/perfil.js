@@ -21,7 +21,7 @@ router.get('/', exigirLogin, async function (req, res, next) {
   try {
     const usuario = await User.findByPk(req.session.usuario.id);
     if (!usuario) {
-      return req.session.destroy(() => res.redirect('/login'));
+      return req.session.destroy(() => res.redirect('login'));
     }
 
     // Ranking: posição = 1 + quantidade de usuários ativos com mais pontos.
