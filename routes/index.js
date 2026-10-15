@@ -24,7 +24,7 @@ router.get('/inicio', function (req, res, next) {
 
 /* GET tela de login */
 router.get('/login', function (req, res, next) {
-  if (req.session.usuario) return res.redirect('..');
+  if (req.session.usuario) return res.redirect('/');
   res.render('login', { layout: false });
 });
 
@@ -64,7 +64,7 @@ router.post('/login', async function (req, res, next) {
       perfil: usuario.profile,
     };
 
-    res.redirect('..');
+    res.redirect('/');
   } catch (erro) {
     next(erro);
   }
