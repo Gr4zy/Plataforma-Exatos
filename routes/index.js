@@ -10,7 +10,7 @@ const VALIDADE_TOKEN_MS = 60 * 60 * 1000; // 1 hora
 
 /* GET página inicial: landing pública para visitantes, painel para quem já
    está logado. */
-router.get('/', function (req, res, next) {
+router.get('/index', function (req, res, next) {
   if (!req.session.usuario) {
     return res.render('landing', { layout: false });
   }
@@ -24,7 +24,7 @@ router.get('/inicio', function (req, res, next) {
 
 /* GET tela de login */
 router.get('/login', function (req, res, next) {
-  if (req.session.usuario) return res.redirect('..');
+  if (req.session.usuario) return res.redirect('index');
   res.render('login', { layout: false });
 });
 
@@ -64,7 +64,7 @@ router.post('/login', async function (req, res, next) {
       perfil: usuario.profile,
     };
 
-    res.redirect('..');
+    res.redirect('index');
   } catch (erro) {
     next(erro);
   }
