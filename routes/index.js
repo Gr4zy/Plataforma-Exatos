@@ -79,7 +79,7 @@ router.get('/logout', function (req, res) {
 
 /* GET tela "esqueci minha senha" */
 router.get('/esqueci-senha', function (req, res) {
-  if (req.session.usuario) return res.redirect('');
+  if (req.session.usuario) return res.redirect('/');
   res.render('esqueci-senha', { layout: false });
 });
 
@@ -194,7 +194,7 @@ router.post('/redefinir-senha/:token', async function (req, res, next) {
 
 /* GET tela de cadastro */
 router.get('/cadastro', function (req, res, next) {
-  if (req.session.usuario) return res.redirect('');
+  if (req.session.usuario) return res.redirect('/');
   res.render('cadastro', { layout: false });
 });
 
